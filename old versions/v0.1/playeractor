@@ -1,0 +1,77 @@
+package model
+
+import akka.actor._
+import play.api.libs.json._
+
+object PlayerActor {
+  def props(out: ActorRef, server: ActorRef) = Props(new PlayerActor(out, server))
+}
+
+class PlayerActor(out: ActorRef, server: ActorRef) extends Actor with Cell with PacketReciever {  
+  implicit val userFormat = Json.format[PlayerData]
+  var userID = -1;
+  var mouseX = 250;
+  var mouseY = 100;
+  
+  def calculateMovement() = {
+    var deltaY = mouseY - positionY;
+    var deltaX = mouseX - positionX;
+    var angle = Math.atan2(deltaX, deltaY); 
+    
+    var dist = getDistance(positionX, positionY, mouseX, mouseY);
+    var speed = Math.min(getSpeed(), dist);                                                       //TODO
+
+    var x1 = positionX + ( speed * Math.sin(angle) );
+    var y1 = positionY + ( speed * Math.cos(angle) );
+    
+    (x1.toInt, y1.toInt)
+  }
+  
+  def getDistance(x1: Int, y1: Int, x2: Int, y2: Int): Double = {
+    var xs = x2 - x1;
+    xs = xs * xs;
+
+    var ys = y2 - y1;
+    ys = ys * ys;
+
+    return Math.sqrt(xs + ys);
+  }
+  
+  override def preStart() = {
+    server ! Join
+  }
+  
+  /*
+  override def postStop() = {
+    server ! Goodbye(userID)
+  }
+  */
+  
+  def playerReceive: Receive = {
+    case msg: JsValue => {
+      val rec = (msg \ "message").as[String]
+      out ! Json.obj("type" -> "Greeting", "Reply" -> rec)
+    }
+    
+    case SubscribedID (uID: Int) => userID = uID
+    
+    case TickMove => 
+      //out ! Json.obj("type" -> "NewCoord", "x" -> newX, "y" -> newY)  
+      
+    case EntitiesInView(entities: List[PlayerData]) => 
+      out ! Json.obj("type" -> entities)
+    
+    case TickPositionRequest => 
+      val (newX, newY) = calculateMovement()
+      positionX = newX.toInt
+      positionY = newY.toInt
+      server ! PlayerData (userID, positionX, positionY, size)
+         
+    case _ => {
+      out ! Json.obj("Hmm" -> "Cos nie tak")
+    }
+  }
+  
+  def receive = playerPacketReciever orElse playerReceive 
+  override type Receive = PartialFunction[Any, Unit]
+}

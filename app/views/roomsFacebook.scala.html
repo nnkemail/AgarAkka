@@ -1,0 +1,197 @@
+@import model.RoomPacket
+@import model.FriendPacket
+
+@(rooms: List[RoomPacket], gameFriends: List[FriendPacket], accessTokenOfUser: String, userID: String)(implicit request: RequestHeader)
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <style type="text/css">
+        html, body { height: 100%; margin: 0; padding: 0; }
+        #map { height: 100%; }
+    </style>
+    <!-- General meta information -->
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="robots" content="index, follow" />
+    <meta charset="utf-8" />
+        <!-- // General meta information -->  
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/stylesheets/stylerooms.css">
+    
+
+    <!-- Load Javascript -->
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDtY0aZ4WHbPNdMafea0VIGa2mYMIHV1F4&sensor=false">
+    </script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/assets/javascripts/LoggedChatRoom.js"></script>
+    <!-- // Load Javascipt -->
+    @helper.javascriptRouter("jsRoutes")(routes.javascript.ApplicationController.socketLoggedChatMap)
+
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="/assets/stylesheets/friends.css">
+    <script>
+
+        function writeToScreen(message) {
+            var pre = document.createElement("p");
+            var status = document.getElementById("status");
+            pre.style.wordWrap = "break-word";
+            pre.innerHTML = message + " " + new Date();
+            status.appendChild(pre);
+        }
+
+        $(document).ready(function() {
+            var adress = jsRoutes.controllers.ApplicationController.socketLoggedChatMap().webSocketURL()
+            var roomsMap = new LoggedRooms(adress);
+            var friend_data = [];
+            var myFacebookID = (@userID).toString();
+            
+            var resultFriends = '';
+            var index = 0;
+            
+            @for(friend <- gameFriends) {
+                var avatar = "@(friend.avatar)"
+                var name = "@(friend.name)"
+                roomsMap.addFriendToPage(name, avatar);
+                //resultFriends += '<div id = "' + index +'"><img src=' + avatar + '>' + name + '</div>';
+                //index = index + 1;
+            }
+            //var result_holder_GameFriends = document.getElementById('gameFriends');
+            //result_holder_GameFriends.innerHTML = resultFriends;
+            
+
+            @for(room <- rooms) {
+                var id = @room.id
+                var lat = @room.lat
+                var lng = @room.lng
+                var title = "@(room.title)"
+                var position = new google.maps.LatLng(lat, lng);
+                roomsMap.addMarker(id, position, title);
+            }
+
+            $("#NewRoomButton").on("click", function (event) {
+            	event.stopPropagation();
+                roomsMap.addMyMarker();
+            });
+
+            $("#DeleteRoomButton").on("click", function (event) {
+            	event.stopPropagation();
+                roomsMap.deleteMyMarker();
+            });
+
+            $("#ConfirmNewRoom").on("click", function (event) {
+            	event.stopPropagation();
+                if (roomsMap.myMarker !== null) {
+                    var title = $("#newRoomTitle").val();
+                    if (title !== "" && title !== "Name your room") {
+                        roomsMap.myMarker.setTitle(title)
+                        roomsMap.confirmNewRoom();
+                    }
+                }
+            });
+
+            $("#PlayRoomButton").on("click", function (event) {
+            	event.stopPropagation();
+                if (roomsMap.choosenMarker !== null && roomsMap.choosenMarker.marker.getAnimation() !== null) {
+                    var idRoom = roomsMap.choosenMarker.marker.idRoom;
+                    //roomsMap.onDisconnect();
+                    window.setTimeout(window.open("/game/" + idRoom, "_self"), 1000);
+                } else {
+                    document.getElementById("RoomDescription").innerHTML = "First choose a room";
+                }
+            });
+
+            $("#GetFacebookFriends").on("click", function (event) {
+            /*    FB.api(
+                        '/me/friends', { access_token: "@(accessTokenOfUser)" },
+                        function (response) {
+                            if (response && !response.error) {
+                                console.log(response);
+                            }
+                        }
+                );*/
+                event.stopPropagation();
+                FB.api('/me/friends', { access_token: "@(accessTokenOfUser)" }, function(response) {
+                    var result_holder = document.getElementById('result_friends');
+                    friend_data = [];
+                    console.log(response)
+                    //friend_data = JSON.parse(response.data);
+                    //console.log("fb api");
+                    var results = '';
+                    //for (var i = 0; i < friend_data.length; i++) {
+                    //    results += '<div id = "' + i +'"><img src="https://graph.facebook.com/' + friend_data[i].id + '/picture">' + friend_data[i].name + '</div>';
+                    //}
+                    
+                    $.each(response.data, function (i, obj) {
+                    	results += '<div id = "' + i +'"><img src="https://graph.facebook.com/' + obj.id + '/picture">' + obj.name + '</div>';
+                    	friend_data.push(obj.id);
+                    });
+                    result_holder.innerHTML = results;
+                });
+            });
+
+            $("#result_friends").on("click", function (event) {
+                event.stopPropagation();
+                console.log("wybrano div");
+                $(event.target).closest( "div").toggleClass('selected');
+            });
+
+            $("#AddFacebookFriends").on("click", function (event) {
+            	event.stopPropagation();
+                $("#result_friends .selected").each(function (index, element) {
+                    var tabFriendIndex = parseInt($(element).attr('id'));
+                    var friendID = friend_data[tabFriendIndex];
+                    roomsMap.addNewFacebookFriend(myFacebookID, friendID);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <script>
+
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '579389315550357',
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v2.5'
+            });
+        };
+
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+
+
+    <div id="map"></div>
+
+    <div class="container">
+
+    <p id="RoomDescription"></p>
+    <button type="submit" id="NewRoomButton">New room</button>
+    <input id="newRoomTitle" class="form-control" placeholder="Name your room"  maxlength="30" value=""/>
+    <input id="newRoomDescription" class="form-control" placeholder="Description (if you want to)"  maxlength="30" value=""/>
+
+    <button type="submit" id="DeleteRoomButton">Delete new room</button>
+    <button type="submit" id="ConfirmNewRoom">Confirm new room</button>
+    <button type="submit" id="PlayRoomButton">Play</button>
+    <button type="submit" id="GetFacebookFriends">Get Friends from facebook</button>
+    <button type="submit" id="AddFacebookFriends">Add selected friends as game friends</button>
+ 
+
+    <p id="status"></p>
+    <div id="gameFriends">Znajomi z gry:</div>
+    <div>Znajomi z facebooka:</div>
+    <div id="result_friends"></div>
+    <div id="myFacebook"></div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+
+    <head>
+
+        <meta charset="utf-8">
+        <title>Fullscreen Login</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <!-- CSS -->
+        <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=PT+Sans:400,700'>
+        <link rel="stylesheet" href="assets/stylesheets/reset.css">
+        <link rel="stylesheet" href="assets/stylesheets/supersized.css">
+        <link rel="stylesheet" href="assets/stylesheets/style.css">
+
+        <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+		
+	    <!-- Load Javascript -->
+	    <script type="text/javascript" src="/assets/javascripts/jquery-1.11.3.js"></script>
+	    <script type="text/javascript" src="/assets/javascripts/game.js"></script>
+		<script type="text/javascript" src="/assets/javascripts/contactlist.js"></script>
+	    <!-- // Load Javascipt -->
+		
+		<script>	
+	function writeToScreen(message) {
+		var pre = document.createElement("p");
+		var status = document.getElementById("status");
+		pre.style.wordWrap = "break-word";
+		pre.innerHTML = message + " " + new Date();
+		status.appendChild(pre);
+	}
+
+	$(document).ready(function() {
+		$("#submitButton").on("click", function (event) {
+			event.stopPropagation();
+			var playerName = $('#nickname').val()
+			sessionStorage.name = playerName
+			//$.post("game.html",0);
+			window.open("/game/0","_self")
+			//$.get("/game/0");
+			//$.ajax({
+			//	url: "game.html",
+			//	type: "get", //send it through get method
+			//	data:{roomId:0}
+			//});
+		});
+
+		$("#SignInButton").on("click", function (event) {
+			window.open("/signIn ","_self")
+		});
+		
+		$("#RoomsButton").on("click", function (event) {
+			var playerName = $('#nickname').val()
+			sessionStorage.name = playerName
+			window.open("/roomsMap","_self")
+		});
+	});
+
+</script>	
+
+    </head>
+
+    <body>
+
+        <div class="page-container">
+            <h1>Eatme.io</h1>
+            <div class="form">
+			    <input type="text" id="nickname" value="Nickname" onclick="this.value = ''">
+				<button type="submit" id="submitButton">Play as guest</button>
+				<button type="button" id="SignInButton">Sign me in</button>
+				<button type="button" id="RoomsButton">Rooms</button>
+				<p id="status"></p>
+                <div class="error"><span>+</span></div>
+            </div>
+            <div class="connect">
+                <p>Or connect with:</p>
+                <p>
+                    <a class="facebook" href="@routes.SocialAuthController.authenticate("facebook")"></a>
+                    <a class="twitter" href=""></a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Javascript -->
+        <script src="assets/javascripts/jquery-1.8.2.min.js"></script>
+        <script src="assets/javascripts/supersized.3.2.7.min.js"></script>
+        <script src="assets/javascripts/supersized-init.js"></script>
+
+
+    </body>
+
+</html>
+

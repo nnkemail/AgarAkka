@@ -1,0 +1,91 @@
+@import model.RoomPacket
+@(rooms: List[RoomPacket])(implicit request: RequestHeader)
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <style type="text/css">
+        html, body { height: 100%; margin: 0; padding: 0; }
+        #map { height: 100%; }
+    </style>
+    <!-- General meta information -->
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="robots" content="index, follow" />
+    <meta charset="utf-8" />
+    <!-- // General meta information -->
+
+    <!-- Load Javascript -->
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDtY0aZ4WHbPNdMafea0VIGa2mYMIHV1F4&sensor=false">
+    </script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="/assets/javascripts/ChatRoom.js"></script>
+    <!-- // Load Javascipt -->
+    @helper.javascriptRouter("jsRoutes")(routes.javascript.ApplicationController.socketChatMap)
+
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
+    <script>
+        function writeToScreen(message) {
+            var pre = document.createElement("p");
+            var status = document.getElementById("status");
+            pre.style.wordWrap = "break-word";
+            pre.innerHTML = message + " " + new Date();
+            status.appendChild(pre);
+        }
+
+        $(document).ready(function() {
+            var adress = jsRoutes.controllers.ApplicationController.socketChatMap().webSocketURL()
+            var roomsMap = new Rooms(adress);
+            @for(room <- rooms) {
+                var id = @room.id
+                var lat = @room.lat
+                var lng = @room.lng
+                var title = "@(room.title)"
+                var position = new google.maps.LatLng(lat, lng);
+                roomsMap.addMarker(id, position, title);
+            }
+
+            $("#NewRoomButton").on("click", function (event) {
+                roomsMap.addMyMarker();
+            });
+
+            $("#DeleteRoomButton").on("click", function (event) {
+                roomsMap.deleteMyMarker();
+            });
+
+            $("#ConfirmNewRoom").on("click", function (event) {
+                if (roomsMap.myMarker !== null) {
+                    var title = $("#newRoomTitle").val();
+                    if (title !== "" && title !== "Name your room") {
+                        roomsMap.myMarker.setTitle(title)
+                        roomsMap.confirmNewRoom();
+                    }
+                }
+            });
+
+            $("#PlayRoomButton").on("click", function (event) {
+                if (roomsMap.choosenMarker !== null && roomsMap.choosenMarker.marker.getAnimation() !== null) {
+                    var idRoom = roomsMap.choosenMarker.marker.idRoom;
+                    roomsMap.onDisconnect();
+                    window.open("/game/" + idRoom, "_self");
+                } else {
+                    document.getElementById("RoomDescription").innerHTML = "First choose a room";
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+    <p id="RoomDescription"></p>
+    <button type="submit" id="NewRoomButton">New room</button>
+    <input id="newRoomTitle" class="form-control" placeholder="Name your room"  maxlength="30" value=""/>
+    <input id="newRoomDescription" class="form-control" placeholder="Description (if you want to)"  maxlength="30" value=""/>
+
+    <button type="submit" id="DeleteRoomButton">Delete new room</button>
+    <button type="submit" id="ConfirmNewRoom">Confirm new room</button>
+    <button type="submit" id="PlayRoomButton">Play</button>
+
+    <p id="status"></p>
+</body>
+</html>

@@ -1,0 +1,13 @@
+New log file opened at Tue Jan 12 14:40:18 CET 2016 by 6096@kamil-PC
+Taking next connection to: 15548
+New client attempting to connect on port: 15549-15548
+  Address = /192.168.2.107:15548
+This client on port 15549 has uuid 911ca699-eef4-4d96-88fb-5737757bf3b5 configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
+Connected Clients: play-fork-run-911ca699-eef4-4d96-88fb-5737757bf3b5
+Taking next connection to: 15548
+Checking to see if clients are empty...
+No non-daemon clients connected after 3 min. Shutting down.
+Server socket thread exiting.
+0 clients open, will close them...
+All client sockets have been closed.
+Closing the 6096@kamil-PC logs at Tue Jan 12 14:43:19 CET 2016, goodbye.

@@ -1,0 +1,26 @@
+@(serverAdr: String, idRoom: Int)(implicit request: RequestHeader)
+<html>
+<head>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="/assets/javascripts/game.js"></script>
+    @helper.javascriptRouter("jsRoutes")(routes.javascript.ApplicationController.socketGame)
+      
+</head>
+<body>
+<canvas id="cvs"></canvas>
+<p id="fps" lingdex="2"></p>
+<p id="status"></p>
+<div style="font-family:'Ubuntu'">&nbsp;</div>
+
+<script>
+	//var adress = "@(serverAdr)"
+    var adress = jsRoutes.controllers.ApplicationController.socketGame().webSocketURL()
+	var id = @(idRoom)
+    //console.log(sessionStorage.getItem("name"));
+    var player = new Client("gracz", adress, id);
+	player.playAsGuest();
+</script>
+
+
+</body>
+</html>

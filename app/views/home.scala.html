@@ -1,0 +1,7 @@
+@(user: model.User)(implicit messages: Messages)
+
+
+@Messages("first.name") @user.firstName.getOrElse("None")
+@Messages("last.name")@user.lastName.getOrElse("None")
+@Messages("full.name")@user.fullName.getOrElse("None")
+@Messages("email") @user.email.getOrElse("None")

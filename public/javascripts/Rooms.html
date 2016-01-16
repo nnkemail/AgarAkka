@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pl">
+<html>
+<head>
+    <meta charset=UTF-8" />
+    <title>Rooms</title>
+    <script src="http://maps.google.com/maps/api/js?sensor=false"
+            type="text/javascript"></script>
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDtY0aZ4WHbPNdMafea0VIGa2mYMIHV1F4&sensor=false">
+    </script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<body onLoad="initialize()">
+<div id="overlays">
+    <div id="helloDialog">
+        <div id="map"></div>
+        <div class="form-group" id="form-group">
+            <button type="submit" id="playBtn" onClick="addMyMarker()">New room</button>
+        </div>
+        <div class="demo">
+                <div class="nameRoom">
+                    <input id="newRoomName" class="form-control" placeholder="Name your room"  maxlength="30" value=""/>
+                </div>
+        </div>
+
+        <div class="roomOptions" id="roomOptions">
+            <center>
+                <button type="submit" id="deleteRoom" class="btn btn-needs-server" onclick="deleteMarkers()">Delete new room</button>
+                <button type="submit" id="playRoom"  class="btn btn-play btn-needs-server">Play</button>
+            </center>
+        </div>
+        <div class="instruction" id="instruction">
+            <hr/>
+                Pick a room to play or make a new one.<br/>
+                Meet new people in your neighborhood and have fun!<br/>
+            <hr/>
+        </div>
+    </div>
+</div>
