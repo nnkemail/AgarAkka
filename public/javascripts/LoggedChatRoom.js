@@ -102,6 +102,7 @@ LoggedRooms.prototype = {
             },
             scaleControl: true, // enable scale control
             mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
+			
         };
         this.map = new google.maps.Map(document.getElementById("map"), googleMapOptions);
     },
@@ -112,7 +113,7 @@ LoggedRooms.prototype = {
             map: this.map,
             draggable:false,
             title: title,
-            icon: "http://maps.google.com/mapfiles/ms/micons/red.png"
+            icon: "http://maps.google.com/mapfiles/ms/micons/blue.png"
         });
         marker.idRoom = id;
 
@@ -171,7 +172,7 @@ LoggedRooms.prototype = {
     },
 
     addFriendToPage(name, avatar) {
-        var resultFriend = '<div ><img src=' + avatar + '>' + name + '</div>';
+        var resultFriend = '<div style="margin:10px; color:#000;"><img style="margin-right:10px;border-radius: 25px;" src=' + avatar + '>' + name + '</div><hr>';
         var result_holder_GameFriends = document.getElementById('gameFriends');
         result_holder_GameFriends.innerHTML += resultFriend;
     }
