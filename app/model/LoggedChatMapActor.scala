@@ -51,8 +51,8 @@ class LoggedChatMapActor(val out: ActorRef, var masterServer: ActorRef, var user
      var friendPacket = FriendPacket(friend.fullName getOrElse "", friend.avatarURL getOrElse "")
      out ! Json.obj("type" -> "NewFriend", "friend" -> friendPacket)   
      
-   case NotifyFriendAboutMyNewRoom(userID: UUID, roomID: Option[Long]) =>
-       
-     
+   case NotifyFriendAboutMyNewRoom(userID: UUID, roomIDOption: Option[Long]) =>
+     //implicit val FriendChangedRoomPacketFormat = Json.format[FriendChangedRoomPacket]
+     out ! Json.obj("type" -> "FriendChangedRoom", "userID" -> userID.toString, "roomID" -> (roomIDOption getOrElse "").toString)             
   }
 }

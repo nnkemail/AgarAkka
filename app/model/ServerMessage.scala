@@ -52,6 +52,6 @@ case class GetFriends(userLoginInfo: LoginInfo) extends ServerMessage
 case class AddedFriend(friend: User) extends ServerMessage
 case class NotifyFriendAboutMyNewRoom(userID: UUID, roomID: Option[Long]) extends ServerMessage
 case class LeaveChatMap(userID: Option[UUID]) extends ServerMessage
-case class FriendChangedRoom(friendID: UUID, roomID: Long) extends ServerMessage
+case class FriendChangedRoomPacket(friendID: UUID, roomID: Long) extends ServerMessage
 
 
