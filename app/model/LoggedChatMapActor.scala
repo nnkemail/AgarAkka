@@ -3,14 +3,20 @@ package model
 import play.libs.Akka
 import akka.actor._
 import play.api.libs.json._
+import com.mohiva.play.silhouette.api.LoginInfo
+import java.util.UUID
 
 object LoggedChatMapActor {
-  def props(out: ActorRef, masterServer: ActorRef) = Props(new LoggedChatMapActor(out, masterServer))
+  def props(out: ActorRef, masterServer: ActorRef, user: User) = Props(new LoggedChatMapActor(out, masterServer, user))
 }
 
-class LoggedChatMapActor(val out: ActorRef, var masterServer: ActorRef) extends Actor {
+class LoggedChatMapActor(val out: ActorRef, var masterServer: ActorRef, var user: User) extends Actor {
   override def preStart() = {
-    masterServer ! JoinChatMap
+    masterServer ! JoinChatMap(Some(user.userID))
+  }
+  
+  override def postStop() = {
+    masterServer ! LeaveChatMap(Some(user.userID))
   }
   
   def receive = {
@@ -44,5 +50,9 @@ class LoggedChatMapActor(val out: ActorRef, var masterServer: ActorRef) extends 
      implicit val FriendPacketFormat = Json.format[FriendPacket]
      var friendPacket = FriendPacket(friend.fullName getOrElse "", friend.avatarURL getOrElse "")
      out ! Json.obj("type" -> "NewFriend", "friend" -> friendPacket)   
+     
+   case NotifyFriendAboutMyNewRoom(userID: UUID, roomID: Option[Long]) =>
+       
+     
   }
 }

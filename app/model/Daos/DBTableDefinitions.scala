@@ -15,8 +15,7 @@ trait DBTableDefinitions {
     lastName: Option[String],
     fullName: Option[String],
     email: Option[String],
-    avatarURL: Option[String],
-    roomID: Long
+    avatarURL: Option[String]
   )
 
   class Users(tag: Tag) extends Table[DBUser](tag, "user") {
@@ -26,8 +25,7 @@ trait DBTableDefinitions {
     def fullName = column[Option[String]]("fullName")
     def email = column[Option[String]]("email")
     def avatarURL = column[Option[String]]("avatarURL")
-    def roomID = column[Long]("roomID")
-    def * = (id, firstName, lastName, fullName, email, avatarURL, roomID) <> (DBUser.tupled, DBUser.unapply)
+    def * = (id, firstName, lastName, fullName, email, avatarURL) <> (DBUser.tupled, DBUser.unapply)
   }
   
   case class DBFriends (

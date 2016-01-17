@@ -6,6 +6,7 @@ import model.Entities._
 import java.awt.Color
 import model.Entities.EntityType._
 import com.mohiva.play.silhouette.api.LoginInfo
+import java.util.UUID
 
 sealed abstract class ServerMessage
 case class GetUniqueId ()  extends ServerMessage
@@ -44,10 +45,13 @@ case class GiveServer(idRoom: Int) extends ServerMessage
 case class GiveRooms() extends ServerMessage
 case class RoomPacket(id: Int, title: String, lat: Double, lng: Double) extends ServerMessage
 case class FriendPacket(name: String, avatar: String) extends ServerMessage
-case class JoinChatMap() extends ServerMessage
+case class JoinChatMap(userID: Option[UUID]) extends ServerMessage
 case class AddNewRoom(title: String, lat: Double, lng: Double) extends ServerMessage
 case class AddFacebookFriend(myFacebookID: String, friendFacebookID: String) extends ServerMessage
 case class GetFriends(userLoginInfo: LoginInfo) extends ServerMessage
 case class AddedFriend(friend: User) extends ServerMessage
+case class NotifyFriendAboutMyNewRoom(userID: UUID, roomID: Option[Long]) extends ServerMessage
+case class LeaveChatMap(userID: Option[UUID]) extends ServerMessage
+case class FriendChangedRoom(friendID: UUID, roomID: Long) extends ServerMessage
 
 

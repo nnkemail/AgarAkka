@@ -51,7 +51,7 @@ class UserServiceImpl @Inject() (userDAO: UserDAO) extends UserService {
           fullName = profile.fullName,
           email = profile.email,
           avatarURL = profile.avatarURL,
-          roomID = 0
+          roomID = None
         ))
       case None => // Insert a new user
         userDAO.save(User(
@@ -61,8 +61,8 @@ class UserServiceImpl @Inject() (userDAO: UserDAO) extends UserService {
           lastName = profile.lastName,
           fullName = profile.fullName,
           email = profile.email,
-          avatarURL = profile.avatarURL,
-          roomID = 0
+          avatarURL= profile.avatarURL,
+          roomID = None
         ))
     }
   }

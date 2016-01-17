@@ -12,15 +12,31 @@ import com.mohiva.play.silhouette.api.LoginInfo
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import scala.collection.mutable.ListBuffer
+import java.util.UUID
 
 class MasterServerActor(userDao: UserDAO) extends Actor {
   var rooms = HashMap.empty[Int, RoomDescription]
   var mapChatParticipants = HashSet.empty[ActorRef]
+  var mapChatLoggedParticipants = HashMap.empty[UUID,ActorRef]
   
   for (defaultRoom <- settings.defaultRooms) {
     val roomId = util.nextSysId()
     defaultRoom.roomActor = context.actorOf(RoomActor.props(roomId))
     rooms += ((roomId, defaultRoom))
+  }
+  
+  def notifyFriendsAboutNewRoom(userID: UUID, roomID: Option[Long]) = {
+	  userDao.getFriends(userID) map {
+		  friendsOptionList =>
+		  for (friendOption <- friendsOptionList) {
+			  friendOption match {
+			  case Some(user) => mapChatLoggedParticipants.get(userID) map {
+				  actorAddres => actorAddres ! NotifyFriendAboutMyNewRoom(userID, roomID) 
+			  }
+			  case None => ;
+			  }
+		  }
+	  }
   }
     
   def receive = {
@@ -34,15 +50,31 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
         case None =>
       }  
       
-    case JoinChatMap =>  
-      mapChatParticipants += sender;
+    case JoinChatMap(userIDOption: Option[UUID]) => {    
       //sender ! SpawnData(util.nextSysId(), util.getRandomPosition(), worldGrid, worldActor)
-      context.watch(sender)
+      //context.watch(sender)
+      userIDOption match { 
+        case Some(userID) => {
+          mapChatLoggedParticipants += userID -> sender 
+          notifyFriendsAboutNewRoom(userID, Some(0))
+        }
+        
+        case None => mapChatParticipants += sender;
+      }
       println("Przyszlo JoinChatMap");
-      
-    case Terminated(terminatedActorRef) =>
-      mapChatParticipants = mapChatParticipants - terminatedActorRef;
-      println(mapChatParticipants);
+    }
+    
+    case LeaveChatMap(userIDOption: Option[UUID]) => 
+      userIDOption match { 
+        case Some(userID) => 
+          mapChatLoggedParticipants -= userID
+          notifyFriendsAboutNewRoom(userID, None)
+        case None => mapChatParticipants = mapChatParticipants - sender;
+      }
+         
+    //case Terminated(terminatedActorRef) =>
+    //  mapChatParticipants = mapChatParticipants - terminatedActorRef;
+    //  println(mapChatParticipants);
       
     case AddNewRoom(title: String, lat: Double, lng: Double) => 
       val roomId = util.nextSysId()
@@ -50,6 +82,8 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
       var newRoom = RoomDescription(title, lat, lng, roomActor)
       rooms += ((roomId, newRoom))
       mapChatParticipants.foreach(_ ! RoomPacket(roomId, title, lat, lng))
+      mapChatLoggedParticipants.values.foreach(_ ! RoomPacket(roomId, title, lat, lng))
+      
        
     case GiveServer(idRoom: Int) =>
       println("przyszlo give server");

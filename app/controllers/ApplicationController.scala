@@ -59,7 +59,7 @@ def roomsFacebook = SecuredAction.async { implicit request =>
     var friendsFuture = getFriends(request.identity.loginInfo);
     var friendsInfoToSend = List.empty[FriendPacket]
     
-    
+   
     o2Dao.find(request.identity.loginInfo) flatMap { 
       resultInfo => resultInfo match  {
         case Some(authInfo) => 
@@ -118,20 +118,20 @@ def roomsFacebook = SecuredAction.async { implicit request =>
   def socketChatMap = WebSocket.acceptWithActor[JsValue, JsValue] {request => out =>
     ChatMapActor.props(out, masterServer)
   }
-  /*
+  
   def socketLoggedChatMap = WebSocket.tryAcceptWithActor[JsValue, JsValue] { request => 
     implicit val req = Request(request, AnyContentAsEmpty)
     SecuredRequestHandler { securedRequest =>
       Future.successful(HandlerResult(Ok, Some(securedRequest.identity)))
     }.map {
-      case HandlerResult(r, Some(user)) => Right(out => LoggedChatMapActor.props(out, masterServer))
+      case HandlerResult(r, Some(user)) => Right(out => LoggedChatMapActor.props(out, masterServer, user))
       case HandlerResult(r, None) => Left(r)
     }
   }
-  */
-  def socketLoggedChatMap = WebSocket.acceptWithActor[JsValue, JsValue] { request => out =>
-    LoggedChatMapActor.props(out, masterServer);
-  }
+  
+  //def socketLoggedChatMap = WebSocket.acceptWithActor[JsValue, JsValue] { request => out =>
+  //  LoggedChatMapActor.props(out, masterServer);
+  //}
   
   def getRooms(): Future[List[RoomPacket]] = {
     implicit val timeout = Timeout(5 seconds)
