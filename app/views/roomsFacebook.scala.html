@@ -7,7 +7,9 @@
 <head>
     <style type="text/css">
         html, body { height: 100%; margin: 0; padding: 0; }
-        #map { height: 100%; }
+        .col-lg-9 { height: 100%; }
+		.row { height: 70%; }
+		#map { height: 100%}
     </style>
     <!-- General meta information -->
     <meta name="keywords" content="" />
@@ -16,8 +18,9 @@
     <meta charset="utf-8" />
         <!-- // General meta information -->  
     <!-- CSS -->
-    <link rel="stylesheet" href="assets/stylesheets/stylerooms.css">
-    
+    <link rel="stylesheet" type="text/css" href="/assets/stylesheets/bootsrap.css">
+	<link rel="stylesheet" type="text/css" href="/assets/stylesheets/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/stylesheets/friends.css">
 
     <!-- Load Javascript -->
     <script type="text/javascript"
@@ -29,7 +32,7 @@
     @helper.javascriptRouter("jsRoutes")(routes.javascript.ApplicationController.socketLoggedChatMap)
 
     <link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="/assets/stylesheets/friends.css">
+  
     <script>
 
         function writeToScreen(message) {
@@ -167,11 +170,31 @@
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
     </script>
-
-
-    <div id="map"></div>
-
-    <div class="container">
+	
+	<!-- Map and Game friends -->
+    <div class="row">
+	
+	<div class="col-lg-9">
+	<div id="map"></div>
+    </div> 
+	
+	<div class="col-lg-3">
+	<div class="gameFriends">
+	<h1 class="title">Game friends</h1>
+	<div id="gameFriends"></div>
+	<p id="status"></p>
+	</div>
+	</div>
+	
+	</div>
+	<!-- End Map and Game friends -->
+	
+	<div class="facebookFriends">
+    <div>Znajomi z facebooka:</div>
+    <div id="result_friends"></div>
+	</div>
+	
+    <div class="button-section">
 
     <p id="RoomDescription"></p>
     <button type="submit" id="NewRoomButton">New room</button>
@@ -184,14 +207,8 @@
     <button type="submit" id="GetFacebookFriends">Get Friends from facebook</button>
     <button type="submit" id="AddFacebookFriends">Add selected friends as game friends</button>
  
-
-    <p id="status"></p>
-    <div id="gameFriends">Znajomi z gry:</div>
-    <div>Znajomi z facebooka:</div>
-    <div id="result_friends"></div>
-    <div id="myFacebook"></div>
-
     </div>
-
+	</div>
+	
 </body>
 </html>

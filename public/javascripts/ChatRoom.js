@@ -86,7 +86,8 @@ Rooms.prototype = {
                 style: google.maps.ZoomControlStyle.SMALL //zoom control size
             },
             scaleControl: true, // enable scale control
-            mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
+            mapTypeId: google.maps.MapTypeId.ROADMAP; // google map type
+			
         };
         this.map = new google.maps.Map(document.getElementById("map"), googleMapOptions);
     },
