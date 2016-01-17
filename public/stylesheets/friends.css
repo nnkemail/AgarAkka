@@ -1,14 +1,40 @@
+::-webkit-scrollbar{
+    width: 6px;
+    padding-top: 40px;
+}
+
+::-webkit-scrollbar-track{
+    -webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.3);
+    border: 1px solid black;
+    background: #3c5a99;
+    border-radius: 10px;
+
+}
+::-webkit-scrollbar-thumb{
+    border-radius:10px;
+    height: 30px;
+    width: 8px;
+    border: 1px solid black;
+    background: #e9eaed;
+   
+  
+}
+
+::-webkit-scrollbar-track-piece {
+    height: 30px;
+}
+
 div.selected {
     border: 3px solid blue;
 }
 
 .gameFriends {
-    width:60%;
+    width:85%;
 	color:#000;
 	background:#fff;
 	overflow:auto;
-	margin: 0 20%;
-	height:460px;
+	margin: 0 7%;
+	height:456px;
 	-moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;

@@ -172,7 +172,7 @@ LoggedRooms.prototype = {
     },
 
     addFriendToPage(name, avatar) {
-        var resultFriend = '<div style="margin:10px; color:#000"><img style="margin-right:10px;border-radius: 25px;" src=' + avatar + '>' + name + '</div><hr>';
+        var resultFriend = '<div style="margin:10px; color:#000;"><img style="margin-right:10px;border-radius: 25px;" src=' + avatar + '>' + name + '</div><hr>';
         var result_holder_GameFriends = document.getElementById('gameFriends');
         result_holder_GameFriends.innerHTML += resultFriend;
     }
