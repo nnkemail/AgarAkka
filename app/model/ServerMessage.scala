@@ -44,14 +44,15 @@ case class JoinRoom(idRoom: Int) extends ServerMessage
 case class GiveServer(idRoom: Int) extends ServerMessage
 case class GiveRooms() extends ServerMessage
 case class RoomPacket(id: Int, title: String, lat: Double, lng: Double) extends ServerMessage
-case class FriendPacket(name: String, avatar: String) extends ServerMessage
+case class FriendPacket(friendID: String, roomID: String, name: String, avatar: String) extends ServerMessage
 case class JoinChatMap(userID: Option[UUID]) extends ServerMessage
 case class AddNewRoom(title: String, lat: Double, lng: Double) extends ServerMessage
 case class AddFacebookFriend(myFacebookID: String, friendFacebookID: String) extends ServerMessage
 case class GetFriends(userLoginInfo: LoginInfo) extends ServerMessage
-case class AddedFriend(friend: User) extends ServerMessage
+case class AddedFriend(friend: User, roomID: Option[Long]) extends ServerMessage
 case class NotifyFriendAboutMyNewRoom(userID: UUID, roomID: Option[Long]) extends ServerMessage
 case class LeaveChatMap(userID: Option[UUID]) extends ServerMessage
 case class FriendChangedRoomPacket(friendID: UUID, roomID: Long) extends ServerMessage
+case class GetUsersRooms(users: List[UUID]) extends ServerMessage
 
 

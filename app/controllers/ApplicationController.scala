@@ -15,6 +15,8 @@ import model.Util.util._
 import model.RoomPacket
 import scala.concurrent.Future
 import scala.collection.mutable.ListBuffer
+import java.util.UUID
+import scala.collection.mutable.HashMap
 
 import javax.inject.Inject
 
@@ -58,11 +60,10 @@ def roomsFacebook = SecuredAction.async { implicit request =>
     var roomsFuture = getRooms();
     var friendsFuture = getFriends(request.identity.loginInfo);
     var friendsInfoToSend = List.empty[FriendPacket]
-    
-   
+       
     o2Dao.find(request.identity.loginInfo) flatMap { 
       resultInfo => resultInfo match  {
-        case Some(authInfo) => 
+        case Some(authInfo) => {
           var accessToken = authInfo.accessToken
           
           var roomsFriendsFuture = for {
@@ -70,17 +71,29 @@ def roomsFacebook = SecuredAction.async { implicit request =>
             friends <- friendsFuture
           } yield (rooms, friends)
           
-          roomsFriendsFuture map {roomsFriends =>
+          roomsFriendsFuture flatMap { roomsFriends =>
             var rooms = roomsFriends._1
             var friends = roomsFriends._2
             
-            for (friend <- friends)
-              friendsInfoToSend = FriendPacket(friend.fullName getOrElse "", friend.avatarURL getOrElse "") :: friendsInfoToSend
+            var friendsRoomsFuture = getUsersRooms(friends map {friend => friend.userID})
+            friendsRoomsFuture map { friendsRooms => 
+            
+              for (friend <- friends) {
+                var roomID: String = friendsRooms.get(friend.userID) match {
+                  case Some(optionRoom) => (optionRoom getOrElse "").toString
+                  case None => ""
+                }
+            
+                 friendsInfoToSend = FriendPacket(friend.userID.toString, roomID, 
+                    friend.fullName getOrElse "", friend.avatarURL getOrElse "") :: friendsInfoToSend
+              }
               
-            Ok(views.html.roomsFacebook(rooms, friendsInfoToSend, accessToken, 
-               request.identity.loginInfo.providerKey.toString()))
-          }    
-          
+              Ok(views.html.roomsFacebook(rooms, friendsInfoToSend, accessToken, 
+                 request.identity.loginInfo.providerKey.toString()))
+            }  
+          }
+        }
+              
         case None => Future.successful(NotFound(<h1>Page not found</h1>))
       }
     }
@@ -142,6 +155,12 @@ def roomsFacebook = SecuredAction.async { implicit request =>
   def getFriends(userLoginInfo: LoginInfo): Future[List[User]] = {
     implicit val timeout = Timeout(5 seconds)
     var resp = ask(masterServer, GetFriends(userLoginInfo)).mapTo[List[User]]
+    resp
+  }
+  
+  def getUsersRooms(users: List[UUID]): Future[HashMap[UUID, Option[Long]]] = {
+    implicit val timeout = Timeout(5 seconds)
+    var resp = ask(masterServer, GetUsersRooms(users)).mapTo[HashMap[UUID, Option[Long]]]
     resp
   }
 }

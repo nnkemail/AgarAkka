@@ -30,13 +30,29 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
 		  friendsOptionList =>
 		  for (friendOption <- friendsOptionList) {
 			  friendOption match {
-			  case Some(user) => mapChatLoggedParticipants.get(userID) map {
+			  case Some(user) => mapChatLoggedParticipants.get(user.userID) map {
 				  actorAddres => actorAddres ! NotifyFriendAboutMyNewRoom(userID, roomID) 
 			  }
 			  case None => ;
 			  }
 		  }
 	  }
+  }
+  
+  def getUserRoom(userID: UUID): Option[Long] = {
+    mapChatLoggedParticipants.get(userID) match {
+      case None => None 
+      case actorAddress => Some(0)    
+    }
+  }
+  
+  def getUsersRooms(users: List[UUID]): Future[HashMap[UUID, Option[Long]]] = {
+    var usersRooms = HashMap.empty[UUID, Option[Long]]
+    Future {
+      for (userID <- users) {
+        usersRooms += userID -> getUserRoom(userID)
+      } 
+    } map {_ => usersRooms }
   }
     
   def receive = {
@@ -114,7 +130,9 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
       var addFriendFuture = userDao.addFriend(LoginInfo("facebook", myFacebookID), LoginInfo("facebook", friendFacebookID));
       
       addFriendFuture onSuccess {
-        case Some(friend) => _sender ! AddedFriend(friend)
+        case Some(friend) =>
+           var roomIDOption = getUserRoom(friend.userID)
+          _sender ! AddedFriend(friend, roomIDOption)
         case None => ;
       }
       
@@ -122,15 +140,19 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
       val _sender = sender
       var listOfFriends = ListBuffer.empty[User]
       
-      userDao.getFriends(userLoginInfo) map {friendsOptionList =>
+      userDao.getFriends(userLoginInfo) map { friendsOptionList =>
         for (friendOption <- friendsOptionList) {
           friendOption match {
             case Some(user) => listOfFriends += user
             case None => ;
           }
-        }
+        };
         _sender ! listOfFriends.toList
       }
+      
+    case GetUsersRooms(users: List[UUID]) =>
+      val _sender = sender
+      getUsersRooms(users) map { usersRooms => _sender ! usersRooms }   
   }  
 }
 
