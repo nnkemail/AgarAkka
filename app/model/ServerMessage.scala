@@ -57,5 +57,5 @@ case class GetUsersRooms(users: List[UUID]) extends ServerMessage
 
 //SERVER MESSAGES
 case class AddNewServerRoom(roomID: Int) extends ServerMessage
-case class ServerCreatedNewRoom(roomID: Option[Int]) extends ServerMessage
+case class AddNewServerRoomResponse(roomID: Option[Int]) extends ServerMessage
 

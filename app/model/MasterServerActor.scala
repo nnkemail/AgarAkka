@@ -13,19 +13,28 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import scala.collection.mutable.ListBuffer
 import java.util.UUID
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.duration._
 
 class MasterServerActor(userDao: UserDAO) extends Actor {
   var rooms = HashMap.empty[Int, RoomDescription]
   var mapChatParticipants = HashSet.empty[ActorRef]
   var mapChatLoggedParticipants = HashMap.empty[UUID,ActorRef]
+  implicit val timeout = Timeout(5 seconds)
   
   //SERVER
   var serverActor = context.actorOf(ServerActor.props())
   
   for (defaultRoom <- settings.defaultRooms) {
-    val roomId = util.nextSysId()
-    defaultRoom.roomActor = context.actorOf(RoomActor.props(roomId))
-    rooms += ((roomId, defaultRoom))
+    val roomID = util.nextSysId()
+    //defaultRoom.roomActor = context.actorOf(RoomActor.props(roomId))
+    var resp: Future[AddNewServerRoomResponse] = ask(serverActor, AddNewServerRoom(roomID)).mapTo[AddNewServerRoomResponse]
+    
+    resp map { addNewServerRoomResponse => addNewServerRoomResponse.roomID map {roomID =>
+      rooms += ((roomID, defaultRoom))  
+      }
+    }
   }
   
   def notifyFriendsAboutNewRoom(userID: UUID, roomID: Option[Long]) = {
@@ -96,14 +105,18 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
     //  println(mapChatParticipants);
       
     case AddNewRoom(title: String, lat: Double, lng: Double) => 
-      val roomId = util.nextSysId()
+      val roomID = util.nextSysId()
       //var roomActor = context.actorOf(RoomActor.props(roomId))
-      
-      var newRoom = RoomDescription(title, lat, lng, serverActor, "ws://localhost:80/socket/game")
-      rooms += ((roomId, newRoom))
-      mapChatParticipants.foreach(_ ! RoomPacket(roomId, title, lat, lng))
-      mapChatLoggedParticipants.values.foreach(_ ! RoomPacket(roomId, title, lat, lng))  
-       
+      var resp: Future[AddNewServerRoomResponse] = ask(serverActor, AddNewServerRoom(roomID)).mapTo[AddNewServerRoomResponse]
+    
+      resp map { addNewServerRoomResponse => addNewServerRoomResponse.roomID map {roomID =>
+        var newRoom = RoomDescription(title, lat, lng, serverActor, "ws://localhost:80/socket/game")
+        rooms += ((roomID, newRoom)) 
+        mapChatParticipants.foreach(_ ! RoomPacket(roomID, title, lat, lng))
+        mapChatLoggedParticipants.values.foreach(_ ! RoomPacket(roomID, title, lat, lng))  
+      }
+    }
+                  
     case GiveServer(idRoom: Int) =>
       println("przyszlo give server");
       if (idRoom == 0) {
