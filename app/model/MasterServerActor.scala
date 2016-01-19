@@ -19,6 +19,9 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
   var mapChatParticipants = HashSet.empty[ActorRef]
   var mapChatLoggedParticipants = HashMap.empty[UUID,ActorRef]
   
+  //SERVER
+  var serverActor = context.actorOf(ServerActor.props())
+  
   for (defaultRoom <- settings.defaultRooms) {
     val roomId = util.nextSysId()
     defaultRoom.roomActor = context.actorOf(RoomActor.props(roomId))
@@ -94,12 +97,12 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
       
     case AddNewRoom(title: String, lat: Double, lng: Double) => 
       val roomId = util.nextSysId()
-      var roomActor = context.actorOf(RoomActor.props(roomId))
-      var newRoom = RoomDescription(title, lat, lng, roomActor)
+      //var roomActor = context.actorOf(RoomActor.props(roomId))
+      
+      var newRoom = RoomDescription(title, lat, lng, serverActor, "ws://localhost:80/socket/game")
       rooms += ((roomId, newRoom))
       mapChatParticipants.foreach(_ ! RoomPacket(roomId, title, lat, lng))
-      mapChatLoggedParticipants.values.foreach(_ ! RoomPacket(roomId, title, lat, lng))
-      
+      mapChatLoggedParticipants.values.foreach(_ ! RoomPacket(roomId, title, lat, lng))  
        
     case GiveServer(idRoom: Int) =>
       println("przyszlo give server");
@@ -111,7 +114,7 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
         val roomDscOption = rooms.get(idRoom)
       
         roomDscOption match {
-          case Some(roomDsc: RoomDescription) => sender ! ("ws://localhost:80/socket/game", idRoom) 
+          case Some(roomDsc: RoomDescription) => sender ! (roomDsc.serverAddress, idRoom) 
           case None =>
         }
       } 

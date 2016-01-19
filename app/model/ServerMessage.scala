@@ -55,4 +55,7 @@ case class LeaveChatMap(userID: Option[UUID]) extends ServerMessage
 case class FriendChangedRoomPacket(friendID: UUID, roomID: Long) extends ServerMessage
 case class GetUsersRooms(users: List[UUID]) extends ServerMessage
 
+//SERVER MESSAGES
+case class AddNewServerRoom(roomID: Int) extends ServerMessage
+case class ServerCreatedNewRoom(roomID: Option[Int]) extends ServerMessage
 

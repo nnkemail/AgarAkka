@@ -49,7 +49,7 @@ object util {
     color
 	}
 	
-	case class RoomDescription(title: String, lat: Double, lng: Double, var roomActor: ActorRef)
+	case class RoomDescription(title: String, lat: Double, lng: Double, var roomActor: ActorRef, serverAddress: String)
 	
   private val sysId = new AtomicInteger()
   def nextSysId() = sysId.incrementAndGet()
