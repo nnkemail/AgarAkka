@@ -113,7 +113,7 @@ LoggedRooms.prototype = {
             map: this.map,
             draggable:false,
             title: title,
-            icon: "http://maps.google.com/mapfiles/ms/micons/blue.png"
+            icon: "http://maps.google.com/mapfiles/ms/micons/red.png"
         });
         marker.idRoom = id;
 

@@ -8,7 +8,6 @@
     border: 1px solid black;
     background: #3c5a99;
     border-radius: 10px;
-
 }
 ::-webkit-scrollbar-thumb{
     border-radius:10px;
@@ -16,8 +15,6 @@
     width: 8px;
     border: 1px solid black;
     background: #e9eaed;
-   
-  
 }
 
 ::-webkit-scrollbar-track-piece {
@@ -39,6 +36,7 @@ div.selected {
     -webkit-border-radius: 6px;
     border-radius: 6px;
     border: 1px solid #45619d;
+	z-index:1;
 }
 
 .title {
@@ -54,8 +52,52 @@ div.selected {
 	padding-top:13px;
 }
 
-#gameFriends {
-	
+#facebookWraper {
+	position:absolute;
+	top:10px;
+	right:31px;
+	height:458px;
+	width:20%;
+	display:none;
+}
+
+.facebookFriends {
+	height:458px;
+	width:100%;
+	color:#000;
+	background:#fff;
+	-moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid #45619d;
+	z-index:10;
+}
+
+#AddFacebookFriends {
+    margin-right:auto;
+	margin-left:auto;
+	width: 275px;
+	margin-top:35px;
+}
+
+.getFriendsPanel {
+	position:fixed;
+	right:31px;
+	top:85%;
+	height:300px;
+	width:20%;
+	color:#fff;
+	background:#45619d;
+	-moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid #45619d;
+	font-size: 17px;
+    font-weight: 400;
+    color: #fff;
+	text-align: center;
+	padding-top:13px;
+	cursor:pointer;
 }
 
 #map { 
@@ -68,15 +110,22 @@ div.selected {
 	
 }
 body {
-    background: #e9eaed;
+    background: #fff;
     color: #fff;
 	margin:10px;
 }
 
 		
 .button-section{
-	width:70%;
-}		
+	margin-left: 3%;
+	margin-right: 3%;
+	width:75%;
+}
+
+#PlayRoomButton	{
+	background:#ee1f1f;
+	border-color:#b20c0c;
+}	
 		
 .page-container {
     margin: 120px auto 0 auto;
@@ -95,8 +144,10 @@ h1 {
     text-align: center;
 }
 
-input {
-    width: 270px;
+#newRoomTitle,
+#newRoomDescription {
+	display:inline;
+    width: 300px;
     height: 42px;
     margin-top: 25px;
     padding: 0 15px;
@@ -245,4 +296,6 @@ button:active {
 .connect a.twitter { background: url(../img/twitter.png) center center no-repeat; }
 
 .connect a:hover { background-position: center bottom; }
+
+
 
