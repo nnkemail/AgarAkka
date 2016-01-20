@@ -17,22 +17,19 @@ import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
 
-class MasterServerActor(userDao: UserDAO) extends Actor {
+class MasterServerActor(userDao: UserDAO, serverActor: ActorRef) extends Actor {
   var rooms = HashMap.empty[Int, RoomDescription]
   var mapChatParticipants = HashSet.empty[ActorRef]
   var mapChatLoggedParticipants = HashMap.empty[UUID,ActorRef]
   implicit val timeout = Timeout(5 seconds)
   
-  //SERVER
-  var serverActor = context.actorOf(ServerActor.props())
   
   for (defaultRoom <- settings.defaultRooms) {
     val roomID = util.nextSysId()
-    //defaultRoom.roomActor = context.actorOf(RoomActor.props(roomId))
     var resp: Future[AddNewServerRoomResponse] = ask(serverActor, AddNewServerRoom(roomID)).mapTo[AddNewServerRoomResponse]
     
     resp map { addNewServerRoomResponse => addNewServerRoomResponse.roomID map {roomID =>
-      rooms += ((roomID, defaultRoom))  
+      self ! AddedNewServerRoom(roomID, RoomDescription(defaultRoom.title, defaultRoom.lat, defaultRoom.lng, serverActor, "ws://localhost:80/socket/game"))
       }
     }
   }
@@ -67,17 +64,7 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
     } map {_ => usersRooms }
   }
     
-  def receive = {
-    //MOVE TO SERVER
-    case JoinRoom(idRoom: Int) => 
-      println("przyszlo join Room");
-      val roomDscOption = rooms.get(idRoom)
-      
-      roomDscOption match {
-        case Some(roomDsc: RoomDescription) => roomDsc.roomActor forward Join
-        case None =>
-      }  
-      
+  def receive = {       
     case JoinChatMap(userIDOption: Option[UUID]) => {    
       //sender ! SpawnData(util.nextSysId(), util.getRandomPosition(), worldGrid, worldActor)
       //context.watch(sender)
@@ -110,13 +97,15 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
       var resp: Future[AddNewServerRoomResponse] = ask(serverActor, AddNewServerRoom(roomID)).mapTo[AddNewServerRoomResponse]
     
       resp map { addNewServerRoomResponse => addNewServerRoomResponse.roomID map {roomID =>
-        var newRoom = RoomDescription(title, lat, lng, serverActor, "ws://localhost:80/socket/game")
-        rooms += ((roomID, newRoom)) 
-        mapChatParticipants.foreach(_ ! RoomPacket(roomID, title, lat, lng))
-        mapChatLoggedParticipants.values.foreach(_ ! RoomPacket(roomID, title, lat, lng))  
+        self ! AddedNewServerRoom(roomID, RoomDescription(title, lat, lng, serverActor, "ws://localhost:80/socket/game"))    
       }
     }
-                  
+      
+    case AddedNewServerRoom(roomID, roomDsc) =>
+       rooms += ((roomID, roomDsc))
+       mapChatParticipants.foreach(_ ! RoomPacket(roomID, roomDsc.title, roomDsc.lat, roomDsc.lng))
+       mapChatLoggedParticipants.values.foreach(_ ! RoomPacket(roomID, roomDsc.title, roomDsc.lat, roomDsc.lng))  
+                   
     case GiveServer(idRoom: Int) =>
       println("przyszlo give server");
       if (idRoom == 0) {
@@ -173,6 +162,6 @@ class MasterServerActor(userDao: UserDAO) extends Actor {
 }
 
 object MasterServerActor {
-  def props(userDao: UserDAO) = Props(new MasterServerActor(userDao))
+  def props(userDao: UserDAO, serverActor: ActorRef) = Props(new MasterServerActor(userDao, serverActor))
 }
 

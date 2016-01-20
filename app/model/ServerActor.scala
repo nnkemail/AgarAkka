@@ -19,15 +19,21 @@ class ServerActor() extends Actor {
   var rooms = HashMap.empty[Int, ActorRef]
   
   def receive = {
-    case Join =>
+    case JoinRoom(roomID: Int) => 
+      println("przyszlo join Room");
+      val roomActorOption = rooms.get(roomID)
       
-      
+      roomActorOption match {
+        case Some(roomActor) => roomActor forward Join
+        case None =>;  //TODO
+      }  
+          
     case AddNewServerRoom (roomID: Int) =>
       if (!rooms.isDefinedAt(roomID)) {
         rooms += roomID -> context.actorOf(RoomActor.props(roomID))
-        sender ! Some(roomID)
+        sender ! AddNewServerRoomResponse(Some(roomID))
       } else 
-        sender ! None
+        sender ! AddNewServerRoomResponse(None)
   }
 }
 

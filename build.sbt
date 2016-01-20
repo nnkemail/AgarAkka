@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   specs2 % Test,
   "com.typesafe.akka" %% "akka-agent"   % "2.4.0",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.0",
+  "com.typesafe.akka" %% "akka-remote" % "2.4.1",
   "net.codingwell" %% "scala-guice" % "4.0.0",
    "net.ceedubs" %% "ficus" % "1.1.2",
   "com.typesafe.play" %% "play-slick" % "1.0.1",

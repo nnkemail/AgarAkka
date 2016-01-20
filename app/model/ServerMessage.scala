@@ -7,6 +7,7 @@ import java.awt.Color
 import model.Entities.EntityType._
 import com.mohiva.play.silhouette.api.LoginInfo
 import java.util.UUID
+import model.Util.util.RoomDescription
 
 sealed abstract class ServerMessage
 case class GetUniqueId ()  extends ServerMessage
@@ -17,7 +18,7 @@ case class GameTick ()  extends ServerMessage
 //case class Goodbye(uID: Int) extends ServerMessage
 //case class PlayerData(id: Int, x: Double, y: Double) extends ServerMessage
 //case class EntitiesInView(ent: List[PlayerData]) extends ServerMessage
-case class SpawnData(uID: Int, initialPosition: Position, worldGrid: WorldGrid, worldActor: ActorRef) extends ServerMessage
+case class SpawnData(uID: Int, initialPosition: Position, roomActor: ActorRef, worldGrid: WorldGrid, worldActor: ActorRef) extends ServerMessage
 case class GiveMeUniqueId() extends ServerMessage
 //case class UpdateData(id: Int, x: Double, y: Double, size: Double, R: Int, G: Int, B: Int, isSpiked: Boolean) extends ServerMessage
 case class UpdateData(id: Int, x: Double, y: Double, size: Double, R: Int, G: Int, B: Int, eType: Int, name: String) extends ServerMessage
@@ -54,6 +55,7 @@ case class NotifyFriendAboutMyNewRoom(userID: UUID, roomID: Option[Long]) extend
 case class LeaveChatMap(userID: Option[UUID]) extends ServerMessage
 case class FriendChangedRoomPacket(friendID: UUID, roomID: Long) extends ServerMessage
 case class GetUsersRooms(users: List[UUID]) extends ServerMessage
+case class AddedNewServerRoom(roomID: Int, roomDsc: RoomDescription) extends ServerMessage
 
 //SERVER MESSAGES
 case class AddNewServerRoom(roomID: Int) extends ServerMessage

@@ -111,8 +111,7 @@ getMousePos: function (evt) {
 onConnect: function() {
     var client = this;
     this.initializeInputCapture();
-    this.sendWebSocket({type: "Name", name: this.client_name});
-    this.sendWebSocket({type: "JoinRoom", idRoom: this.idRoom});
+    this.sendWebSocket({type: "JoinRoom", idRoom: this.idRoom, name: this.client_name});
     this.animloop();
 
 //=====================

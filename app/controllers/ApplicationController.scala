@@ -49,7 +49,8 @@ class ApplicationController @Inject() (
   extends Silhouette[User, CookieAuthenticator] {
   
   val system = ActorSystem("mySystem")
-  val masterServer = system.actorOf (MasterServerActor.props(userDao)) 
+  var serverActor = system.actorOf(ServerActor.props())
+  val masterServer = system.actorOf (MasterServerActor.props(userDao, serverActor)) 
 
   //def index = Action { implicit request =>
   //  Ok(views.html.index())
@@ -125,7 +126,7 @@ def roomsFacebook = SecuredAction.async { implicit request =>
   //MOVE TO SERVER
   def socketGame = WebSocket.acceptWithActor[JsValue, JsValue] {request => out =>
     println("socket game");
-    PlayerActor.props(out, masterServer)
+    PlayerActor.props(out, serverActor)
   }
     
   def socketChatMap = WebSocket.acceptWithActor[JsValue, JsValue] {request => out =>
