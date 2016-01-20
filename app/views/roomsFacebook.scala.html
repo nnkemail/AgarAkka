@@ -16,22 +16,26 @@
     <meta name="description" content="" />
     <meta name="robots" content="index, follow" />
     <meta charset="utf-8" />
-        <!-- // General meta information -->  
+    <!-- // General meta information -->  
+	
     <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="/assets/stylesheets/bootsrap.css">
+    <link rel="stylesheet" type="text/css" href="/assets/stylesheets/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="/assets/stylesheets/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/assets/stylesheets/friends.css">
+	<link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
 
     <!-- Load Javascript -->
-    <script type="text/javascript"
-            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDtY0aZ4WHbPNdMafea0VIGa2mYMIHV1F4&sensor=false">
-    </script>
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script type="text/javascript"src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDtY0aZ4WHbPNdMafea0VIGa2mYMIHV1F4&sensor=false"></script>
     <script type="text/javascript" src="/assets/javascripts/LoggedChatRoom.js"></script>
     <!-- // Load Javascipt -->
+	
+	<!-- Load jQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+	<!-- // Load jQuery -->
+	
     @helper.javascriptRouter("jsRoutes")(routes.javascript.ApplicationController.socketLoggedChatMap)
 
-    <link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
   
     <script>
 
@@ -173,6 +177,13 @@
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
     </script>
+	<script>
+        $(document).ready(function(){
+            $("#GetFacebookFriends").click(function(){
+            $("#facebookWraper").toggle(400);
+            });
+        });
+    </script>
 	
 	<!-- Map and Game friends -->
     <div class="row">
@@ -192,10 +203,21 @@
 	</div>
 	<!-- End Map and Game friends -->
 	
+	<!-- Facebook friends -->
+	<div id="facebookWraper">
 	<div class="facebookFriends">
-    <div>Znajomi z facebooka:</div>
+    <div class="title">Facebook friends</div>
     <div id="result_friends"></div>
 	</div>
+	<button type="submit" id="AddFacebookFriends">Add selected friends as game friends</button>
+	</div>
+	<!-- End Facebook friends -->
+	
+	<!-- Get friedns from facebook panel -->
+	<div class="getFriendsPanel">
+	<p type="submit" id="GetFacebookFriends">Get friends from <big>facebook</big></p>
+	</div>
+	<!-- End Get friends from facebook panel -->
 	
     <div class="button-section">
 
@@ -207,11 +229,8 @@
     <button type="submit" id="DeleteRoomButton">Delete new room</button>
     <button type="submit" id="ConfirmNewRoom">Confirm new room</button>
     <button type="submit" id="PlayRoomButton">Play</button>
-    <button type="submit" id="GetFacebookFriends">Get Friends from facebook</button>
-    <button type="submit" id="AddFacebookFriends">Add selected friends as game friends</button>
  
     </div>
-	</div>
 	
 </body>
 </html>
