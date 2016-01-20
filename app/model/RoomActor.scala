@@ -41,7 +41,7 @@ class RoomActor(id: Int) extends Actor {
     case Join =>
       workingPlayers = workingPlayers + 1;
       players += sender;
-      sender ! SpawnData(util.nextSysId(), util.getRandomPosition(), worldGrid, worldActor)
+      sender ! SpawnData(util.nextSysId(), util.getRandomPosition(), self, worldGrid, worldActor)
       context.watch(sender)
       println("Przyszlo Join");
       

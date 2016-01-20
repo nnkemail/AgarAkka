@@ -31,7 +31,7 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
     } yield dbUser
     db.run(userQuery.result.headOption).map { dbUserOption =>
       dbUserOption.map { user =>
-        User(UUID.fromString(user.userID), loginInfo, user.firstName, user.lastName, user.fullName, user.email, user.avatarURL, user.roomID)
+        User(UUID.fromString(user.userID), loginInfo, user.firstName, user.lastName, user.fullName, user.email, user.avatarURL)
       }
     }
   }  
@@ -58,8 +58,7 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
             user.lastName,
             user.fullName,
             user.email,
-            user.avatarURL,
-            user.roomID)
+            user.avatarURL)
       }
     }
   }
@@ -71,7 +70,7 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
    * @return The saved user.
    */
   def save(user: User) = {
-    val dbUser = DBUser(user.userID.toString, user.firstName, user.lastName, user.fullName, user.email, user.avatarURL, user.roomID)
+    val dbUser = DBUser(user.userID.toString, user.firstName, user.lastName, user.fullName, user.email, user.avatarURL)
     val dbLoginInfo = DBLoginInfo(None, user.loginInfo.providerID, user.loginInfo.providerKey)
     // We don't have the LoginInfo id so we try to get it first.
     // If there is no LoginInfo yet for this user we retrieve the id on insertion.    
@@ -126,26 +125,7 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
       }
     }
   }
-  /*
-  def getFriends(userLoginInfo: LoginInfo): Future[Seq[(Option[String], Option[String])]] = {
-    var friends = List.empty[(Option[String], Option[String])]
 
-    var userFuture = find(userLoginInfo)
-    userFuture flatMap { user => 
-      user match {
-        case Some(user) => 
-          println("get Friends User :" + user)
-          var action = for {
-            friends <- slickFriends if (friends.userID === user.userID.toString) 
-            userFriend <- slickUsers if (userFriend.id === friends.friendID)
-          } yield (userFriend)
-        db.run(action.result) map {result => result map {friend => (friend.fullName, friend.email)}}                                                                                                                                   
-        
-        case None => Future.successful(List.empty)
-      }
-    }
-  }
-  */
   def getFriends(userLoginInfo: LoginInfo): Future[List[Option[User]]] = {
     val futures = new ListBuffer[Future[Option[User]]]
 
@@ -171,4 +151,35 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
       }
     }
   }
+  
+  def getFriends(userID: UUID): Future[List[Option[User]]] = {
+    val futures = new ListBuffer[Future[Option[User]]]
+
+    var userFuture = find(userID)
+    userFuture flatMap { userOption => 
+      userOption match {
+        case Some(user) => 
+          //println("get Friends User :" + user)
+          var action = for {
+            friendRow <- slickFriends if (friendRow.userID === user.userID.toString) 
+          } yield (friendRow)    
+          
+          db.run(action.result) flatMap { friendRows =>
+            for (friend <- friendRows) {
+              futures += find (UUID.fromString(friend.friendID))
+            }
+            
+            val f = Future.sequence(futures.toList)
+            f
+           }
+                                  
+        case None => Future.successful(List.empty)
+      }
+    }  
+  }
+  
+//  def setUserRoom(userID: UUID, roomID: Option[Long]) = {
+//    val q = for { u <- slickUsers if u.id === userID.toString } yield u.roomID
+//    val updateAction = q.update(roomID)
+//  }
 }

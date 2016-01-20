@@ -59,7 +59,10 @@
             @for(friend <- gameFriends) {
                 var avatar = "@(friend.avatar)"
                 var name = "@(friend.name)"
-                roomsMap.addFriendToPage(name, avatar);
+                var friendID = "@(friend.friendID)"
+                var roomID = "@(friend.roomID)"
+                roomsMap.addFriendToPage(friendID, name, avatar);
+                roomsMap.changeFriendStatus(friendID, roomID)
                 //resultFriends += '<div id = "' + index +'"><img src=' + avatar + '>' + name + '</div>';
                 //index = index + 1;
             }
