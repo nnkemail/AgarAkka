@@ -16,6 +16,7 @@ object PlayerActor {
 class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with PlayerPacketHandler with ActorLogging  { 
   //implicit val userFormat = Json.format[PlayerData]
   var name: String = ""
+  var roomActor: ActorRef = null;
   var score: Int = 0
   var isInTheTop = false
   var worldActor: ActorRef = null
@@ -46,9 +47,10 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
   }
   
   def playerReceive: Receive = {
-    case SpawnData(uID: Int, initialPosition: Position, world: WorldGrid, _worldActor: ActorRef) => 
+    case SpawnData(uID: Int, initialPosition: Position, _roomActor: ActorRef, world: WorldGrid, _worldActor: ActorRef) => 
       println("Przyszlo spawn data");
       userID = uID
+      roomActor = _roomActor
       //worldGrid.grid = world.grid
       worldGrid = world
       worldActor = _worldActor

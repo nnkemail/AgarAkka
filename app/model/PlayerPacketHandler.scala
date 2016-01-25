@@ -62,8 +62,12 @@ trait PlayerPacketHandler{ this: PlayerActor =>
        val t = (msg \ "type").as[String]
        
        t match {
-         case "Name"  => { this.name = (msg \ "name").as[String]; this.server ! Join }
-         case "JoinRoom" => {var idRoom = (msg \ "idRoom").as[Int]; this.server ! JoinRoom(idRoom) }
+         //case "Name"  => { this.name = (msg \ "name").as[String]; this.server ! Join }
+         case "JoinRoom" => 
+           var idRoom = (msg \ "idRoom").as[Int]; 
+           this.name = (msg \ "name").as[String] 
+           this.server ! JoinRoom(idRoom) 
+           
          case "Coord" => { mousePosition.x = (msg \ "x").as[Double]; mousePosition.y = (msg \ "y").as[Double];}
          case "space" => splitCells(); //println("przyszlo space");
          case "w"     => ejectMass(); //println("przyszlo eject mass");

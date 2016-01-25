@@ -47,7 +47,7 @@ class SettingsImpl(config: Config) extends Extension {
 	
   var defaultRooms: List[RoomDescription] = {
     val projs = config.getConfigList("myApp.defaultRooms").asScala map { p => 
-      RoomDescription(p.getString("title"), p.getDouble("lat"), p.getDouble("lng"), null) }
+      RoomDescription(p.getString("title"), p.getDouble("lat"), p.getDouble("lng"), null, p.getString("serverAddress")) }
     projs.toList }
 }
  

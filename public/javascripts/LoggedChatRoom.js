@@ -13,8 +13,8 @@ function LoggedRooms(serverAdress) {
 }
 
 LoggedRooms.prototype = {
-    connect: function() {
-    	console.log("connect")
+    connect: function () {
+        console.log("connect")
         this.ws = new WebSocket(this.serverAdress)
         this.ws.onopen = this.onConnect.bind(this);
         this.ws.onmessage = this.onMessage.bind(this);
@@ -22,22 +22,22 @@ LoggedRooms.prototype = {
         this.ws.onerror = this.onError.bind(this);
     },
 
-    onConnect: function() {
+    onConnect: function () {
         this.isConnected = true;
     },
 
-    onError: function(e) {
+    onError: function (e) {
         console.log("On error" + e);
     },
 
-    onDisconnect: function(e) {
+    onDisconnect: function (e) {
         this.ws.close();
         this.isConnected = false;
         console.log("disconnect")
         console.log(e)
     },
 
-    onMessage: function(evt) {
+    onMessage: function (evt) {
         var data = JSON.parse(evt.data);
         if (data.type === "AddedNewRoom") {
             var id = data.id;
@@ -50,13 +50,21 @@ LoggedRooms.prototype = {
         else if (data.type === "NewFriend") {
             var avatar = data.friend.avatar;
             var name = data.friend.name;
-            this.addFriendToPage(name, avatar);
+            var friendID = data.friend.friendID;
+            this.addFriendToPage(friendID, name, avatar);
+        }
+        else if (data.type === "FriendChangedRoom") {
+            console.log("Przyszlo friendchangeroom")
+            console.log(data)
+            var friendID = data.friendID;
+            var roomID = data.roomID;
+            this.changeFriendStatus(friendID, roomID);
         }
     },
 
     sendWebSocket: function (object) {
-    	var objectToSend = JSON.stringify(object);
-    	console.log(objectToSend);
+        var objectToSend = JSON.stringify(object);
+        console.log(objectToSend);
         this.ws.send(objectToSend);
     },
 
@@ -69,7 +77,7 @@ LoggedRooms.prototype = {
         }
     },
 
-    clickMarkerFunction: function(marker) {
+    clickMarkerFunction: function (marker) {
         if (this.choosenMarker.marker === null) {
             this.choosenMarker.marker = marker;
             this.choosenMarker.marker.setAnimation(google.maps.Animation.BOUNCE)
@@ -85,7 +93,7 @@ LoggedRooms.prototype = {
             this.choosenMarker.marker = marker;
             this.choosenMarker.marker.setAnimation(google.maps.Animation.BOUNCE)
         }
-        marker.infowindow.open(this.map,marker);
+        marker.infowindow.open(this.map, marker);
     },
 
     initialize: function ()  //function initializes Google map
@@ -102,7 +110,7 @@ LoggedRooms.prototype = {
             },
             scaleControl: true, // enable scale control
             mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
-			
+
         };
         this.map = new google.maps.Map(document.getElementById("map"), googleMapOptions);
     },
@@ -111,7 +119,7 @@ LoggedRooms.prototype = {
         var marker = new google.maps.Marker({
             position: position,
             map: this.map,
-            draggable:false,
+            draggable: false,
             title: title,
             icon: "http://maps.google.com/mapfiles/ms/micons/red.png"
         });
@@ -125,14 +133,13 @@ LoggedRooms.prototype = {
         google.maps.event.addListener(marker, 'click', this.clickMarkerFunction.bind(this, marker));
     },
 
-    addMyMarker: function ()
-    { //function that will add markers on button click
+    addMyMarker: function () { //function that will add markers on button click
         var marker = new google.maps.Marker({
             position: this.mapCenter,
             map: this.map,
-            draggable:true,
+            draggable: true,
             animation: google.maps.Animation.DROP,
-            title:"New room",
+            title: "New room",
             icon: "http://maps.google.com/mapfiles/ms/micons/purple.png"
         });
 
@@ -140,7 +147,7 @@ LoggedRooms.prototype = {
         var total;
         google.maps.event.addListener(marker, "dragend", function () {
             var lat, lng, address;
-            geocoder.geocode({ 'latLng': marker.getPosition() }, function (results, status) {
+            geocoder.geocode({'latLng': marker.getPosition()}, function (results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                     lat = marker.getPosition().lat();
                     lng = marker.getPosition().lng();
@@ -153,11 +160,11 @@ LoggedRooms.prototype = {
         });
     },
 
-    deleteMyMarker: function() {
+    deleteMyMarker: function () {
         this.myMarker.setMap(null);
     },
 
-    confirmNewRoom: function() {
+    confirmNewRoom: function () {
         if (this.myMarker != null) {
             var lat = this.myMarker.getPosition().lat();
             var lng = this.myMarker.getPosition().lng();
@@ -171,9 +178,17 @@ LoggedRooms.prototype = {
         this.sendWebSocket({type: "AddFacebookFriend", userFacebookID: userFacebookID, friendFacebookID: friendID});
     },
 
-    addFriendToPage(name, avatar) {
-        var resultFriend = '<div style="margin:10px; color:#000;"><img style="margin-right:10px;border-radius: 25px;" src=' + avatar + '>' + name + '</div><hr>';
+    addFriendToPage(friendID, name, avatar) {
+        var resultFriend = '<div id = ' + friendID + ' style="margin:10px; color:#000;"><img style="margin-right:10px;border-radius: 25px;" src=' + avatar + '>' + name + '</div><hr>';
         var result_holder_GameFriends = document.getElementById('gameFriends');
         result_holder_GameFriends.innerHTML += resultFriend;
+    },
+
+    changeFriendStatus: function (friendID, roomID) {
+        if (roomID === '0') {
+            $("#gameFriends #" + friendID).text("In Rooms");
+        } else {
+            $("#gameFriends #" + friendID).text("Disconnected");
+        }
     }
-};
+}
