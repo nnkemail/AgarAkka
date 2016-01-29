@@ -32,6 +32,22 @@ h1 {
     text-align: center;
 }
 
+#RoomsButton {
+	background:#638fed;
+	-moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid #3c5a99;
+}
+
+#RoomsButton:hover {
+	background:#1d51c0;
+}
+
+#submitButton:hover {
+	background:#1dc034;
+}
+
 input {
     width: 270px;
     height: 42px;
@@ -80,11 +96,11 @@ button {
     height: 44px;
     margin-top: 25px;
     padding: 0;
-    background: #ef4300;
+    background: #84ed4f;
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
-    border: 1px solid #ff730e;
+    border: 1px solid #5aa336;
     -moz-box-shadow:
         0 15px 30px 0 rgba(255,255,255,.25) inset,
         0 2px 7px 0 rgba(0,0,0,.2);
@@ -95,7 +111,7 @@ button {
         0 15px 30px 0 rgba(255,255,255,.25) inset,
         0 2px 7px 0 rgba(0,0,0,.2);
     font-family: 'PT Sans', Helvetica, Arial, sans-serif;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 700;
     color: #fff;
     text-shadow: 0 1px 2px rgba(0,0,0,.1);

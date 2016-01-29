@@ -6,7 +6,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <style type="text/css">
-		.wrapper { height: 70%; }
+        html, body { height: 100%; margin: 0; padding: 0; }
+        .col-lg-9 { height: 100%; }
+		.row { height: 70%; }
 		#map { height: 100%}
     </style>
     <!-- General meta information -->
@@ -17,6 +19,8 @@
     <!-- // General meta information -->  
 	
     <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="/assets/stylesheets/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="/assets/stylesheets/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="/assets/stylesheets/friends.css">
 	<link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
 
@@ -129,7 +133,7 @@
                     //}
                     
                     $.each(response.data, function (i, obj) {
-                    	results += '<div class="selectedhover" style="font-family:PT Sans, Helvetica, Arial, sans-serif;cursor:pointer" id = "' + i +'"><img  style="vertical-align:middle;margin:10px; color:#000; margin-right:10px;border-radius: 25px" src="https://graph.facebook.com/' + obj.id + '/picture">' + obj.name + '</div><hr>';
+                    	results += '<div class="selectedhover" style="cursor:pointer" id = "' + i +'"><img  style="margin:10px; color:#000; margin-right:10px;border-radius: 25px;" src="https://graph.facebook.com/' + obj.id + '/picture">' + obj.name + '</div><hr>';
                     	friend_data.push(obj.id);
                     });
                     result_holder.innerHTML = results;
@@ -177,71 +181,56 @@
 	<script>
         $(document).ready(function(){
             $("#GetFacebookFriends").click(function(){
-            $("#facebookWraper").toggle(50);
+            $("#facebookWraper").toggle(400);
             });
         });
     </script>
-	<script>
-        $(document).ready(function(){
-            $("#escape-icontitle,#AddFacebookFriends").click(function(){
-            $("#facebookWraper").hide(1000);
-            });
-        });
-    </script>
-	<!-- Logout Button -->
-	<button type="submit" id="LogoutButton">Logout</button>
-	<!-- End Logout Button -->
 	
 	<!-- Map and Game friends -->
-	<div class="background">
-	<div class="wrapper">
-	<div class="tableWrapper">
+    <div class="row">
+	
+	<div class="col-lg-9">
 	<div id="map"></div>
+    </div> 
+	
+	<div class="col-lg-3">
 	<div class="gameFriends">
-	<div class="title"><img class="facebook-icontitle" src="assets/img/game-icontitle.png"></img><p>Game friends</p></div>
+	<h1 class="title">Game friends</h1>
 	<div id="gameFriends"></div>
 	<p id="status"></p>
 	</div>
 	</div>
-	<!-- End Map and Game friends -->
 	
-	<!-- Room Description -->
-	<div class="roomDescription">
-	<p style="color:#45619d;line-height:2px" id="RoomDescription">Pick a room to play or make a new one.</p>
-    <p>Meet new people in your neighborhood and have fun!</p>
 	</div>
-	<!-- End Room Description -->
+	<!-- End Map and Game friends -->
 	
 	<!-- Facebook friends -->
 	<div id="facebookWraper">
 	<div class="facebookFriends">
-    <div class="title"><img class="facebook-icontitle" src="assets/img/facebook-icontitle.png"></img><p>Facebook friends</p><img id="escape-icontitle" src="assets/img/escape.png"></img></div>
+    <div class="title">Facebook friends</div>
     <div id="result_friends"></div>
 	</div>
 	<button type="submit" id="AddFacebookFriends">Add selected friends as game friends</button>
 	</div>
 	<!-- End Facebook friends -->
 	
-	<div class="ButtonSectionWrapper">
 	<!-- Get friedns from facebook panel -->
 	<div class="getFriendsPanel">
-	<p type="submit" id="GetFacebookFriends"><img src="assets/img/facebook-icon1.png"></img></p>
+	<p type="submit" id="GetFacebookFriends">Get friends from <big>facebook</big></p>
 	</div>
 	<!-- End Get friends from facebook panel -->
 	
     <div class="button-section">
 
+    <p id="RoomDescription"></p>
     <button type="submit" id="NewRoomButton">New room</button>
     <input id="newRoomTitle" class="form-control" placeholder="Name your room"  maxlength="30" value=""/>
     <input id="newRoomDescription" class="form-control" placeholder="Description (if you want to)"  maxlength="30" value=""/>
     <button type="submit" id="ConfirmNewRoom">Confirm new room</button>
-	<div class="button-section2">
     <button type="submit" id="DeleteRoomButton">Delete new room</button>
     <button type="submit" id="PlayRoomButton">Play</button>
-	</div>
+ 
     </div>
-	</div>
-	</div>
-	</div>
+	
 </body>
 </html>

@@ -125,7 +125,7 @@ LoggedRooms.prototype = {
         });
         marker.idRoom = id;
 
-        var contentString = String(marker.idRoom);
+        var contentString = '<p style="color:black;margin:0;padding:0">' + String(marker.idRoom) + '</p>';
         marker.infowindow = new google.maps.InfoWindow({
             content: contentString
         });
@@ -179,16 +179,18 @@ LoggedRooms.prototype = {
     },
 
     addFriendToPage(friendID, name, avatar) {
-        var resultFriend = '<div id = ' + friendID + ' style="margin:10px; color:#000;"><img style="margin-right:10px;border-radius: 25px;" src=' + avatar + '>' + name + '</div><hr>';
+        var resultFriend = '<div id = ' + friendID + ' style="margin:10px; color:#000;font-family:PT Sans, Helvetica, Arial, sans-serif"><img style="margin-right:10px;border-radius: 25px;vertical-align:middle" src=' + avatar + '>' + name + '<img style="float:right; margin-top:10px;" class = "statusImg"/></div><hr>';
         var result_holder_GameFriends = document.getElementById('gameFriends');
         result_holder_GameFriends.innerHTML += resultFriend;
     },
 
     changeFriendStatus: function (friendID, roomID) {
         if (roomID === '0') {
-            $("#gameFriends #" + friendID).text("In Rooms");
+            $("#gameFriends #" + friendID + " .statusImg").attr("src", "assets/img/status/google_map.png");
         } else {
-            $("#gameFriends #" + friendID).text("Disconnected");
+            $("#gameFriends #" + friendID + " .statusImg").attr("src", "assets/img/status/open_door.jpg");
         }
+
+        //alert($("#gameFriends #" + friendID + " .statusImg").attr('src'));
     }
 }

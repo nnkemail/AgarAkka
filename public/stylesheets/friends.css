@@ -21,17 +21,37 @@
     height: 30px;
 }
 
-div.selected {
-    border: 3px solid blue;
+hr {
+	margin: 0;
+	padding: 0;
+	color:#45619d;    
+	height: 12px;
+    border: 0;
+    box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
+}
+
+.selected {
+	-moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid #63babd;
+	background:#aff3f6;
+	color:#000;
+}
+
+.selectedhover:hover {
+	color:#000;
+	background:#89eef2;
 }
 
 .gameFriends {
-    width:85%;
+	position:absolute;
+    width:300px;
+	height:450px;
 	color:#000;
 	background:#fff;
-	overflow:auto;
-	margin: 0 7%;
-	height:456px;
+	right:1px;
+	top:1px;
 	-moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
@@ -39,18 +59,47 @@ div.selected {
 	z-index:1;
 }
 
-.title {
+#gameFriends {
+	margin-top:75px;
+}
+
+.title,
+.title .facebook-icontitle p {
+	position:absolute;
 	width: 100%;
-    height: 44px;
+    height: 66px;
 	background: #45619d;
 	margin:0px;
+	margin-bottom:70px;
 	font-family: 'PT Sans', Helvetica, Arial, sans-serif;
     font-size: 17px;
     font-weight: 400;
     color: #fff;
 	text-align: center;
-	padding-top:13px;
+	z-index:2;
+	vertical-align:middle;
 }
+
+
+.facebook-icontitle {
+	position:absolute;
+	left:0;
+	top:0;
+	z-index:5;
+}
+
+#escape-icontitle {
+	position:absolute;
+	right:0;
+	top:0;
+	z-index:5;
+	cursor:pointer;
+}
+
+#escape-icontitle:hover {
+	opacity:0.7;
+}
+
 
 #facebookWraper {
 	position:absolute;
@@ -62,9 +111,12 @@ div.selected {
 }
 
 .facebookFriends {
-	height:458px;
-	width:100%;
+	position:absolute;
+    width:300px;
+	height:450px;
 	color:#000;
+	right:-30px;
+	top:-9px;
 	background:#fff;
 	-moz-border-radius: 6px;
     -webkit-border-radius: 6px;
@@ -73,62 +125,123 @@ div.selected {
 	z-index:10;
 }
 
+#result_friends {
+	margin-top:65px;
+}
+
 #AddFacebookFriends {
-    margin-right:auto;
+	position:absolute;
+	right:-29px;
 	margin-left:auto;
-	width: 275px;
-	margin-top:35px;
+	width: 300px;
+	margin-top:408px;
+	z-index:15;
+	border-radius:0px !important;
+	background:#77c152;
+	border-color:#5aa336;
+	color:#fff;
+	border-top-width:2px;
+}
+
+#AddFacebookFriends:hover {
+	background:#9bdf79;
 }
 
 .getFriendsPanel {
-	position:fixed;
-	right:31px;
-	top:85%;
-	height:300px;
-	width:20%;
-	color:#fff;
-	background:#45619d;
-	-moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-    border-radius: 6px;
-    border: 1px solid #45619d;
-	font-size: 17px;
-    font-weight: 400;
+	position:absolute !important;
+	right:1px;
+	bottom:-80px;
+	height:65px;
+	width:285px;
+	font-size: 16px;
+	font-family: 'PT Sans', Helvetica, Arial, sans-serif;
     color: #fff;
-	text-align: center;
-	padding-top:13px;
+	padding-top:5px;
 	cursor:pointer;
 }
 
+.getFriendsPanel:hover {
+	opacity:0.7;
+}
+
+
 #map { 
-	height: 100%; 
-	width: 100%;
+	margin-top:50px;
+    height:400px;
+	width: 900px;
 	-moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
     border: 1px solid #45619d;
 	
 }
+
+.wrapper {
+	position:absolute;
+	width:1240px;
+	margin-left:auto !important;
+	margin-right:auto !important;
+	left: 0;
+    right: 0;
+	margin-top:10px;
+	margin-bottom:10px;
+}
+
+.tableWrapper {
+	width:1240px;
+}
+
 body {
-    background: #fff;
     color: #fff;
-	margin:10px;
+	margin:0px;
+	padding:0px;
+	background:url("../img/backgrounds/9.jpg");
 }
 
 		
 .button-section{
-	margin-left: 3%;
-	margin-right: 3%;
-	width:75%;
+    width:900px;
+	margin-left:14px;
+	margin-bottom:5px;
+	
+}
+
+.button-section2 {
+	margin-left:242px;
+}
+
+.roomDescription {
+	width:900px;
+	height:20px;
+	margin-top:20px;
+	margin-bottom:15px;
+	text-align:center;
+	color:#89ca69;
+	
 }
 
 #PlayRoomButton	{
-	background:#ee1f1f;
-	border-color:#b20c0c;
+	background:#77c152;
+	border-color:#5aa336;
+	font-size:17px;
 }	
-		
-.page-container {
-    margin: 120px auto 0 auto;
+
+#PlayRoomButton:hover {
+	background:#9bdf79;
+}
+
+#LogoutButton {
+	position:absolute;
+	margin:0px;
+	right:400px;
+	z-index:20;
+	margin-top:10px;
+	background:#ff4444;
+	border-color:#cb2f2f;
+}
+
+#LogoutButton:hover {
+	background:#ff6969;
 }
 
 h1 {
@@ -147,8 +260,8 @@ h1 {
 #newRoomTitle,
 #newRoomDescription {
 	display:inline;
-    width: 300px;
-    height: 42px;
+    width: 200px;
+    height: 34px;
     margin-top: 25px;
     padding: 0 15px;
     background: #2d2d2d; /* browsers that don't support rgba */
@@ -190,8 +303,8 @@ input:focus {
 
 button {
     cursor: pointer;
-    width: 300px;
-    height: 44px;
+    width: 200px;
+    height: 34px;
     margin-top: 25px;
     padding: 0;
     background: #45619d;

@@ -15,7 +15,6 @@
     <!-- // General meta information -->
 	
 	<!-- Load CSS -->
-	<link rel="stylesheet" type="text/css" href="/assets/stylesheets/friends.css">
 	<link rel="stylesheet" type="text/css" href="/assets/stylesheets/roomsMap.css">
 	<!-- // Load CSS -->
 
@@ -83,12 +82,8 @@
 <body>
 
     <div id="map"></div>
-	<div class="roomDescription">
-	<p style="color:#45619d;line-height:2px" id="RoomDescription">Pick a room to play or make a new one.</p>
-    <p>Meet new people in your neighborhood and have fun!</p>
-	</div>
+    <p id="RoomDescription"></p>
 	<div class="button-section">
-	<div class="button-wrapper">
     <button type="submit" id="NewRoomButton">New room</button>
     <input id="newRoomTitle" class="form-control" placeholder="Name your room"  maxlength="30" value=""/>
     <input id="newRoomDescription" class="form-control" placeholder="Description (if you want to)"  maxlength="30" value=""/>
@@ -98,7 +93,6 @@
     <button type="submit" id="PlayRoomButton">Play</button>
 	</div>
     <p id="status"></p>
-	</div>
 	</div>
 </body>
 </html>
