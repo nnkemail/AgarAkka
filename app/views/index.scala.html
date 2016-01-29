@@ -71,9 +71,8 @@
         <div class="page-container">
             <h1>Eatme.io</h1>
             <div class="form">
-			    <input type="text" id="nickname" value="Nickname" onclick="this.value = ''">
+			    <input type="text" id="nickname" placeholder="Nickname" onclick="this.value = ''">
 				<button type="submit" id="submitButton">Play as guest</button>
-				<button type="button" id="SignInButton">Sign me in</button>
 				<button type="button" id="RoomsButton">Rooms</button>
 				<p id="status"></p>
                 <div class="error"><span>+</span></div>
@@ -82,7 +81,6 @@
                 <p>Or connect with:</p>
                 <p>
                     <a class="facebook" href="@routes.SocialAuthController.authenticate("facebook")"></a>
-                    <a class="twitter" href=""></a>
                 </p>
             </div>
         </div>
