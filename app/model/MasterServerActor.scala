@@ -29,7 +29,7 @@ class MasterServerActor(userDao: UserDAO, serverActor: ActorRef) extends Actor {
     var resp: Future[AddNewServerRoomResponse] = ask(serverActor, AddNewServerRoom(roomID)).mapTo[AddNewServerRoomResponse]
     
     resp map { addNewServerRoomResponse => addNewServerRoomResponse.roomID map {roomID =>
-      self ! AddedNewServerRoom(roomID, RoomDescription(defaultRoom.title, defaultRoom.lat, defaultRoom.lng, serverActor, "ws://localhost:80/socket/game"))
+      self ! AddedNewServerRoom(roomID, RoomDescription(defaultRoom.title, defaultRoom.lat, defaultRoom.lng, serverActor, "ws://46.101.222.10:80/socket/game"))
       }
     }
   }
@@ -97,7 +97,7 @@ class MasterServerActor(userDao: UserDAO, serverActor: ActorRef) extends Actor {
       var resp: Future[AddNewServerRoomResponse] = ask(serverActor, AddNewServerRoom(roomID)).mapTo[AddNewServerRoomResponse]
     
       resp map { addNewServerRoomResponse => addNewServerRoomResponse.roomID map {roomID =>
-        self ! AddedNewServerRoom(roomID, RoomDescription(title, lat, lng, serverActor, "ws://localhost:80/socket/game"))    
+        self ! AddedNewServerRoom(roomID, RoomDescription(title, lat, lng, serverActor, "ws://46.101.222.10:80/socket/game"))    
       }
     }
       
