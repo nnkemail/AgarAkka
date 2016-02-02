@@ -46,6 +46,13 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
     visibleEntities.toList
   }
   
+  override def postStop() = {
+    if (!cells.isEmpty) {
+      for (cell <- cells)
+        cell.onRemove()
+    }
+  }
+  
   def playerReceive: Receive = {
     case SpawnData(uID: Int, initialPosition: Position, _roomActor: ActorRef, world: WorldGrid, _worldActor: ActorRef) => 
       println("Przyszlo spawn data");

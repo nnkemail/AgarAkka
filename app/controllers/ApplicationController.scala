@@ -164,4 +164,11 @@ def roomsFacebook = SecuredAction.async { implicit request =>
     var resp = ask(masterServer, GetUsersRooms(users)).mapTo[HashMap[UUID, Option[Long]]]
     resp
   }
+  
+  def logOut = SecuredAction.async { implicit request =>
+   val result = Redirect(routes.ApplicationController.index())
+   env.eventBus.publish(LogoutEvent(request.identity, request, request2Messages))
+
+   env.authenticatorService.discard(request.authenticator, result)
+  }
 }
