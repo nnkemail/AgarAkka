@@ -50,24 +50,6 @@
                 roomsMap.addMarker(id, position, title);
             }
 
-            $("#NewRoomButton").on("click", function (event) {
-                roomsMap.addMyMarker();
-            });
-
-            $("#DeleteRoomButton").on("click", function (event) {
-                roomsMap.deleteMyMarker();
-            });
-
-            $("#ConfirmNewRoom").on("click", function (event) {
-                if (roomsMap.myMarker !== null) {
-                    var title = $("#newRoomTitle").val();
-                    if (title !== "" && title !== "Name your room") {
-                        roomsMap.myMarker.setTitle(title)
-                        roomsMap.confirmNewRoom();
-                    }
-                }
-            });
-
             $("#PlayRoomButton").on("click", function (event) {
                 if (roomsMap.choosenMarker !== null && roomsMap.choosenMarker.marker.getAnimation() !== null) {
                     var idRoom = roomsMap.choosenMarker.marker.idRoom;
@@ -89,12 +71,6 @@
 	</div>
 	<div class="button-section">
 	<div class="button-wrapper">
-    <button type="submit" id="NewRoomButton">New room</button>
-    <input id="newRoomTitle" class="form-control" placeholder="Name your room"  maxlength="30" value=""/>
-    <input id="newRoomDescription" class="form-control" placeholder="Description (if you want to)"  maxlength="30" value=""/>
-	<button type="submit" id="DeleteRoomButton">Delete new room</button>
-	<div class="button-section2">
-    <button type="submit" id="ConfirmNewRoom">Confirm new room</button>
     <button type="submit" id="PlayRoomButton">Play</button>
 	</div>
     <p id="status"></p>
