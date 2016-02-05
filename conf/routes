@@ -6,7 +6,7 @@
 GET     /                           controllers.ApplicationController.index
 #GET     /home						controllers.ApplicationController.home
 GET 	/roomsFacebook				controllers.ApplicationController.roomsFacebook
-GET     /game/:id           		controllers.ApplicationController.game(id: Int)
+GET     /game/:id/:nick           	controllers.ApplicationController.game(id: Int, nick: String)
 GET		/roomsMap					controllers.ApplicationController.roomsMap
 GET     /signIn                     controllers.ApplicationController.signIn
 GET     /authenticate/:provider     controllers.SocialAuthController.authenticate(provider)

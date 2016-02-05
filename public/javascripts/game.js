@@ -5,14 +5,15 @@ var frameTime = 0, lastLoop = new Date, thisLoop;
 
 
 
-function Client(client_name, serverAdr, idRoom) {
-this.client_name      = client_name;
+function Client(serverAdr, idRoom) {
+//this.client_name      = "bla";
 this.tick_counter      = 0;
 this.inactive_interval = 0;
 this.balls             = {};
 this.my_balls          = [];
 this.myPoints          = [];
 this.score             = 0;
+this.totalScore        = 0;
 this.ballList          = [];
 this.ballsIds           = [];
     this.leaderBoard    = []
@@ -38,12 +39,19 @@ this.positionY = 100;
 this.xoffset = 0;
 this.yoffset = 0;
 //writeToScreen("doszlo do przed window")
+
 this.screenWidth = window.innerWidth;
 this.screenHeight = window.innerHeight;
+
+//this.screenWidth = document.body.clientWidth;
+//this.screenHeight = document.body.clientHeight;
+
 //writeToScreen("doszlo do po window")
 this.canvas = document.getElementById('cvs');
 this.context = this.canvas.getContext('2d');
-    this.lbCanvas = null //dodac ddrawimage
+this.lbCanvas = null; //dodac ddrawimage
+this.scoreCanvas = null;
+    
 //CANVAS
 
 //MOUSE
@@ -64,7 +72,7 @@ this.canvas.width = this.screenWidth; this.canvas.height = this.screenHeight;
 
 Client.prototype = {
 connect: function() {
-writeToScreen("connect begin");
+//writeToScreen("connect begin");
 //this.ws            = new WebSocket(jsRoutes.controllers.Application.socket().webSocketURL())
 //this.ws.binaryType = "arraybuffer";
 this.ws            = new WebSocket(this.serverAdress)
@@ -74,7 +82,7 @@ this.ws.onclose    = this.onDisconnect.bind(this);
 //this.ws.onerror    = this.onError.bind(this);
 //=====================
 //TODO PRZENIESC
-writeToScreen("connect end");
+//writeToScreen("connect end");
 },
 
 sendWebSocket: function (object) {
@@ -111,16 +119,33 @@ getMousePos: function (evt) {
 onConnect: function() {
     var client = this;
     this.initializeInputCapture();
-    this.sendWebSocket({type: "JoinRoom", idRoom: this.idRoom, name: this.client_name});
+    //this.sendWebSocket({type: "JoinRoom", idRoom: this.idRoom, name: this.client_name});
+    this.sendWebSocket({type: "JoinRoom", idRoom: this.idRoom});
     this.animloop();
 
 //=====================
-    writeToScreen("onConnect");
+    //writeToScreen("onConnect");
 },
 
 onDisconnect: function() {
     this.ws.close();
 //writeToScreen("onDisconnect");
+},
+
+drawTotalScore: function() {
+	this.scoreCanvas = null;
+	this.scoreCanvas = document.createElement("canvas");
+    var ctx = this.scoreCanvas.getContext("2d");
+    //var scaleFactor = Math.min(200, 0.3 * this.canvas.width) / 200;
+    //this.scoreCanvas.width = 200 * scaleFactor;
+    //this.scoreCanvas.height = 100 * scaleFactor;
+    //ctx.scale(scaleFactor, scaleFactor);
+    this.scoreCanvas.width = 500;
+    this.scoreCanvas.height = 30;
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#add8e6";
+    ctx.font = "30px Ubuntu";
+    ctx.fillText("YOUR SCORE: " + this.totalScore, 0, 30);
 },
     drawLeaderBoard: function () {
         this.lbCanvas = null;
@@ -142,7 +167,7 @@ onDisconnect: function() {
 
             ctx.globalAlpha = 1;
             ctx.fillStyle = "#FFFFFF";
-            var c = "Leaderboard";
+            var c = "TOP 10";
             ctx.font = "30px Ubuntu";
             ctx.fillText(c, 100 - ctx.measureText(c).width / 2, 40);
             var b;
@@ -266,6 +291,21 @@ onMessage: function(evt) {
         //writeToScreen("Wszystkie moje kulki po dodaniu ")
         //writeToScreen(this.my_balls);
         //build();
+    } else if (data.type === 'spawnMyFirstCell') {
+    	 this.totalScore = 0;
+    	 this.my_balls = [];
+    	 this.my_balls.push(data.firstCellId);
+         if (this.balls.hasOwnProperty(data.firstCellId)) {
+             this.px = this.balls[data.firstCellId].x;
+             this.py = this.balls[data.firstCellId].y;
+         }  
+    } else if (data.type === 'showEndMenu') {
+    	document.getElementById("score").innerHTML = "YOUR SCORE: " + data.score;
+        $("#endMenu").show();
+    } else if (data.type === 'newScore') {
+    	console.log("New Score " + data.score)
+    	this.totalScore = data.score; 
+    	this.drawTotalScore();
     } else if (data.type === "nLb") {
         //writeToScreen("Przyszlo nLib");
         this.leaderBoard = [];
@@ -295,7 +335,7 @@ onMessage: function(evt) {
 
 onKeyDown: function (event) {
     switch (event.keyCode) {
-        case 86: // split
+        case 32: // split
             if ((!this.keySpace) && (!this.isTyping)) {
                 this.reset();
                 this.sendWebSocket({type: "Coord", x: this.mouseX2, y: this.mouseY2});
@@ -314,7 +354,7 @@ onKeyDown: function (event) {
 
 onKeyUp: function (event) {
     switch (event.keyCode) {
-        case 86:
+        case 32:
             this.keySpace = false;
             break;
         case 87:
@@ -424,6 +464,9 @@ draw: function () {
 
     if (this.lbCanvas) {
         this.context.drawImage(this.lbCanvas, this.canvas.width - this.lbCanvas.width - 10, 10); }
+    
+    if (this.scoreCanvas) {
+        this.context.drawImage(this.scoreCanvas, 10, this.canvas.height - this.scoreCanvas.height - 10); }
 },
 
 build: function () {

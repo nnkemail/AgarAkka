@@ -1,6 +1,6 @@
 package model
 
-case class LeaderBoardEntry(id: Int, name: String, score: Int) extends Ordered[LeaderBoardEntry] {
+case class LeaderBoardEntry(id: Int, name: String, totalMass: Int) extends Ordered[LeaderBoardEntry] {
 	@Override
 	override def equals(other: Any): Boolean =
 	  other match { 
@@ -13,12 +13,16 @@ case class LeaderBoardEntry(id: Int, name: String, score: Int) extends Ordered[L
 
 	def canEqual(other: Any): Boolean =
 			other.isInstanceOf[LeaderBoardEntry]
-
+/*
 	@Override
 	override def hashCode: Int =
 	41 * (
 		41 + id
   ) + name.hashCode()
+ */ 
+  @Override
+	override def hashCode: Int =
+	  41 * id
 
-	def compare(that: LeaderBoardEntry) = that.score - this.score 
+	def compare(that: LeaderBoardEntry) = that.totalMass - this.totalMass 
 }

@@ -49,8 +49,8 @@ class ApplicationController @Inject() (
   extends Silhouette[User, CookieAuthenticator] {
   
   val system = ActorSystem("mySystem")
-  var serverActor = system.actorOf(ServerActor.props())
-  val masterServer = system.actorOf (MasterServerActor.props(userDao, serverActor)) 
+  val serverActor = system.actorOf(ServerActor.props(), "ServerActor")
+  val masterServer = system.actorOf (MasterServerActor.props(userDao), "MasterServerActor") 
 
   //def index = Action { implicit request =>
   //  Ok(views.html.index())
@@ -110,12 +110,31 @@ def roomsFacebook = SecuredAction.async { implicit request =>
   def signIn = Action.async { implicit request =>
      Future.successful(Ok(views.html.signIn(socialProviderRegistry)))
   }
-  
-  def game(idRoom: Int) = Action.async { implicit request =>
+/*  
+def game(idRoom: Int, nick: String) = UserAwareAction.async { implicit request =>
     println("przyszlo game idRoom: " + idRoom); 
     implicit val timeout = Timeout(5 seconds)
     var resp = ask(masterServer, GiveServer(idRoom)).mapTo[(String, Int)] 
-    resp map ((res) => {println(res._1); Ok(views.html.game(res._1, res._2))})
+    resp map {(res) => println(res._1); 
+      request.identity match {
+        case Some(user) => println("Starting game with session " + user.userID.toString); Ok(views.html.game(res._1, res._2)).withSession("userID" -> user.userID.toString); 
+        case None => Ok(views.html.game(res._1, res._2)).withSession("nick" -> nick);
+      }
+    }
+  }
+  */
+  
+  def game(idRoom: Int, nick: String) = UserAwareAction.async { implicit request =>
+    println("przyszlo game idRoom: " + idRoom); 
+    implicit val timeout = Timeout(5 seconds)
+    var resp = ask(masterServer, GiveServer(idRoom)).mapTo[(String, Int)] 
+    resp map {(res) => println(res._1); 
+      request.identity match {
+        case Some(user) => println("Starting game with session " + user.userID.toString); Ok(views.html.game(res._1, res._2)).
+        withSession("userID" -> user.userID.toString, "nick" -> nick); 
+        case None => Ok(views.html.game(res._1, res._2)).withSession("nick" -> nick);
+      }
+    }
   }
   
   def roomsMap() = Action.async { implicit request =>
@@ -124,9 +143,28 @@ def roomsFacebook = SecuredAction.async { implicit request =>
   }
     
   //MOVE TO SERVER
-  def socketGame = WebSocket.acceptWithActor[JsValue, JsValue] {request => out =>
-    println("socket game");
-    PlayerActor.props(out, serverActor)
+  //def socketGame = WebSocket.acceptWithActor[JsValue, JsValue] {request => out =>
+  //  println("socket game");
+  //  PlayerActor.props(out, serverActor)
+  //}
+  
+   def socketGame = WebSocket.acceptWithActor[JsValue, JsValue] {request => out =>
+    println("socket game")
+    println(request.session)
+    
+    request.session.get("userID") match {
+      case Some(userID) =>
+        println("Logged user " + userID)
+        request.session.get("nick") match { 
+          case Some(nick) => PlayerActor.props(out, serverActor, Some(userID), nick)
+          case None => PlayerActor.props(out, serverActor, Some(userID), "")
+        }
+      case None =>
+        request.session.get("nick") match { 
+          case Some(nick) => PlayerActor.props(out, serverActor, None, nick) 
+          case None => PlayerActor.props(out, serverActor, None, "")
+        }
+    }
   }
     
   def socketChatMap = WebSocket.acceptWithActor[JsValue, JsValue] {request => out =>

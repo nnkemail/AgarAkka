@@ -46,14 +46,18 @@ class LoggedChatMapActor(val out: ActorRef, var masterServer: ActorRef, var user
      out ! Json.obj("type" -> "AddedNewRoom", "id" -> id, "title" -> title, "lat" -> lat, "lng" -> lng)
      println("przyszedl room packet");
      
-   case AddedFriend(friend: User, roomIDOption: Option[Long]) =>
+   case AddedFriend(friend: User, roomIDOption: Option[Int]) =>
      implicit val FriendPacketFormat = Json.format[FriendPacket]
-     var friendPacket = FriendPacket(user.userID.toString, (roomIDOption getOrElse "").toString, 
+     var friendPacket = FriendPacket(friend.userID.toString, (roomIDOption getOrElse "").toString, 
          friend.fullName getOrElse "", friend.avatarURL getOrElse "")
      out ! Json.obj("type" -> "NewFriend", "friend" -> friendPacket)   
      
-   case NotifyFriendAboutMyNewRoom(userID: UUID, roomIDOption: Option[Long]) =>
+   case NotifyFriendAboutMyNewRoom(userID: UUID, roomIDOption: Option[Int]) =>
+     println("Friend changed room" + roomIDOption)
      //implicit val FriendChangedRoomPacketFormat = Json.format[FriendChangedRoomPacket]
-     out ! Json.obj("type" -> "FriendChangedRoom", "friendID" -> userID.toString, "roomID" -> (roomIDOption getOrElse "").toString)             
+     out ! Json.obj("type" -> "FriendChangedRoom", "friendID" -> userID.toString, "roomID" -> (roomIDOption getOrElse "").toString)  
+     
+   case LoggedUserInfo(name: String, avatar: String, score: Int) =>
+     out ! Json.obj("type" -> "LoggedUserInfo", "name" -> name, "avatar" -> avatar, "score" -> score)
   }
 }

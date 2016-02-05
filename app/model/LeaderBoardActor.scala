@@ -17,7 +17,7 @@ class LeaderBoardActor(server: ActorRef) extends Actor {
   def addToLeaderBoard(newEntry: LeaderBoardEntry) = {
     leaderBoard = leaderBoard filter (x => x.id != newEntry.id)
     leaderBoard += newEntry 
-    leaderBoard = leaderBoard.sortWith(_.score < _.score) 
+    leaderBoard = leaderBoard.sortWith(_.totalMass < _.totalMass) 
     leaderBoard = leaderBoard.take(10)  
   }
   
@@ -30,12 +30,13 @@ class LeaderBoardActor(server: ActorRef) extends Actor {
          waitedOneRound = true 
       } else {
         for (player <- players)
-          player !  NewLeaderBoard(leaderBoard.toList)
+          player ! NewLeaderBoard(leaderBoard.toList)
         waitedOneRound = false
       }
+      leaderBoard.clear()
       
-    case RemoveFromLeaderBoard(entry: LeaderBoardEntry) =>
-      leaderBoard -= entry
+    case RemoveFromLeaderBoard(playerID: Int) =>
+      leaderBoard -= LeaderBoardEntry(playerID, "", 0)
   }
 }
   

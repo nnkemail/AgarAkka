@@ -36,4 +36,6 @@ trait UserDAO {
   def addFriend(userLoginInfo: LoginInfo, friendLoginInfo: LoginInfo): Future[Option[User]]
   def getFriends(userLoginInfo: LoginInfo): Future[List[Option[User]]]
   def getFriends(userID: UUID): Future[List[Option[User]]]
+  def getObservators(userID: UUID): Future[List[Option[User]]]
+  def saveScore(score: Int, userID: String)
 }

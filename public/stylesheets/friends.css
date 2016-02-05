@@ -258,6 +258,7 @@ h1 {
 }
 
 #newRoomTitle,
+#loggedNickname,
 #newRoomDescription {
 	display:inline;
     width: 200px;
