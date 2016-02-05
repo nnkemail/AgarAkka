@@ -1,25 +1,68 @@
 @(serverAdr: String, idRoom: Int)(implicit request: RequestHeader)
 <html>
 <head>
+    <!-- General meta information -->
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="robots" content="index, follow" />
+    <meta charset="utf-8" />
+    <!-- // General meta information -->
+
     <link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
     <script type="text/javascript" src="/assets/javascripts/game.js"></script>
     @helper.javascriptRouter("jsRoutes")(routes.javascript.ApplicationController.socketGame)
+
+    <!-- CSS -->
+    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=PT+Sans:400,700'>
+    <link rel="stylesheet" href="/assets/stylesheets/style.css">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Load Javascript -->
+    <script type="text/javascript" src="/assets/javascripts/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="/assets/javascripts/game.js"></script>
+    <script type="text/javascript" src="/assets/javascripts/contactlist.js"></script>
+    <!-- // Load Javascipt -->
+	
+
       
 </head>
-<body>
+<body style="margin:0; padding:0">
 <canvas id="cvs"></canvas>
-<p id="fps" lingdex="2"></p>
-<p id="status"></p>
-<div style="font-family:'Ubuntu'">&nbsp;</div>
 
 <script>
 	//var adress = "@(serverAdr)"
-    var adress = jsRoutes.controllers.ApplicationController.socketGame().webSocketURL()
-	var id = @(idRoom)
-    //console.log(sessionStorage.getItem("name"));
-    var player = new Client("gracz", adress, id);
-	player.playAsGuest();
+    $(document).ready(function() {
+        var adress = jsRoutes.controllers.ApplicationController.socketGame().webSocketURL()
+        var id = @(idRoom)
+        //console.log(sessionStorage.getItem("name"));
+        var player = new Client(adress, id);
+        player.playAsGuest();
+
+        $("#submitButton").on("click", function (event) {
+            event.stopPropagation();
+            //var player = new Client(adress, id);
+            //player.playAsGuest();   
+            $("#endMenu").hide();
+            player.sendWebSocket({type: "RestartGame"}); 
+        });
+    });
+
 </script>
+
+    <div id="endMenu" class="form" style="position: absolute; margin-left: auto; margin-right: auto; left: 0; right: 0; top: 40%; display: none">
+    	<h1 id=score style = "color:blue"></h1>
+        <button type="button" id="submitButton">Play again</button>
+        <button type="button" id="RoomsButton" onclick="location.href='http://dotti.club';">Back to main site</button>
+    </div>
+
+
+<!-- Javascript -->
+<script src="/assets/javascripts/jquery-1.8.2.min.js"></script>
+
 
 
 </body>

@@ -42,8 +42,20 @@ trait PlayerPacketHandler{ this: PlayerActor =>
     out ! Json.obj("type" -> "modf", "toRemoveData" -> toRemoveJson, "toUpdateData" -> toUpdateData);
   } 
   
+  def sendMyFristCellID(firstCellId: Int) = {
+    out ! Json.obj("type" -> "spawnMyFirstCell", "firstCellId" -> firstCellId);
+  }
+  
   def sendNewCellId(newId: Int) = {
     out ! Json.obj("type" -> "myId", "nId" -> newId);
+  }
+  
+  def showEndMenu(score: Int) = {
+    out ! Json.obj("type" -> "showEndMenu", "score" -> score);
+  }
+  
+  def sendNewScore(score: Int) = {
+    out ! Json.obj("type" -> "newScore", "score" -> score);
   }
   
   def sendLeaderBoard(leaderBoard: List[LeaderBoardEntry]) = {
@@ -64,13 +76,15 @@ trait PlayerPacketHandler{ this: PlayerActor =>
        t match {
          //case "Name"  => { this.name = (msg \ "name").as[String]; this.server ! Join }
          case "JoinRoom" => 
+           println("Packet Hander Join Room");
            var idRoom = (msg \ "idRoom").as[Int]; 
-           this.name = (msg \ "name").as[String] 
-           this.server ! JoinRoom(idRoom) 
+           //this.name = (msg \ "name").as[String] 
+           this.server ! JoinRoom(idRoom, this.userID)
            
          case "Coord" => { mousePosition.x = (msg \ "x").as[Double]; mousePosition.y = (msg \ "y").as[Double];}
          case "space" => splitCells(); //println("przyszlo space");
          case "w"     => ejectMass(); //println("przyszlo eject mass");
+         case "RestartGame" => roomActor ! RestartMyGame; println("Przyszlo restart")
          case _ => sender ! "Error"
        }
      }

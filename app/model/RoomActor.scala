@@ -14,18 +14,16 @@ import model.Util.Settings
 import model.Util.util.settings
 
 class RoomActor(id: Int) extends Actor {
-  val system = ActorSystem("mySystem")
   val worldGrid = WorldGrid()
   val worldActor = context.actorOf(WorldActor.props(this.context.self, worldGrid))
   val leaderBoardActor = context.actorOf(LeaderBoardActor.props(this.context.self))
   var players = HashSet.empty[ActorRef]
-  var id: Int = 0
   var workingPlayers: Int = 0;
   var playersData = ListBuffer.empty[Entity]
   var recievedMsg = 0;
-  
-  system.scheduler.schedule(Duration.Zero, Duration(60, MILLISECONDS))(sendMoveTicks)
-  system.scheduler.schedule(Duration.Zero, Duration(800, MILLISECONDS))(sendUpdateLeaderBoardTick)
+
+  context.system.scheduler.schedule(Duration.Zero, Duration(60, MILLISECONDS))(sendMoveTicks)
+  context.system.scheduler.schedule(Duration.Zero, Duration(800, MILLISECONDS))(sendUpdateLeaderBoardTick)
   println ("Po schedulerze")
   
   def sendMoveTicks() = {
@@ -38,17 +36,30 @@ class RoomActor(id: Int) extends Actor {
   }
   
   def receive = {
-    case Join =>
+    case Join(userIDOption: Option[String]) =>
       workingPlayers = workingPlayers + 1;
       players += sender;
       sender ! SpawnData(util.nextSysId(), util.getRandomPosition(), self, worldGrid, worldActor)
-      context.watch(sender)
+      userIDOption map {userID => context.parent ! UserJoinedGame(userID, id)}
       println("Przyszlo Join");
-      
-    case Terminated(terminatedActorRef) =>
-      players = players - terminatedActorRef;
+
+    case Leave(userIDOption: Option[String]) =>
+      players = players - sender;
       workingPlayers = workingPlayers - 1;
+      userIDOption map {userID => context.parent ! UserLeftGame(userID)}
       println(players);
+      
+    case RemoveFromLeaderBoard(playerID: Int) =>
+      leaderBoardActor forward RemoveFromLeaderBoard(playerID)
+     
+    case RestartMyGame =>
+      println("room actor restart");
+      sender ! RestartGame(util.getRandomPosition())
+      
+    case SaveMyScore(score, uID) =>
+      context.parent ! SaveMyScore(score, uID)
+      
+      
   }
 }
 

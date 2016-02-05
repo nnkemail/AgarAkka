@@ -14,8 +14,6 @@ import scala.collection.mutable.HashSet
 
 case class Cell(owner: PlayerActor, ePosition: Position, worldGrid: WorldGrid, worldActor: ActorRef) 
 extends MovableEntity(EntityType.CELL, ePosition, worldGrid, worldActor) {
-  
-  var name: String = "Player " + owner.userID
   var _recombineTicks: Long = 0
   
   @Override
@@ -199,7 +197,7 @@ extends MovableEntity(EntityType.CELL, ePosition, worldGrid, worldActor) {
 				    case c: Cell => {
 				      if (c.id == this.id) break
 				      if (owner.eatenOwnCells.contains(c)) break;
-				      if (this.owner.userID == c.owner.userID) {
+				      if (this.owner.playerID == c.owner.playerID) {
 				        if ((this.recombineTicks > 0) || (c.recombineTicks > 0)) {
                         break;
                     }
@@ -221,8 +219,11 @@ extends MovableEntity(EntityType.CELL, ePosition, worldGrid, worldActor) {
 		    println(this.id + " Edibles: "+ e.entityType + "" + e.id)
 		    e match {
 		      case f: Food => 
-		        f.onRemove()
 		        this.addMass(f.mass);
+		        this.owner.score += f.mass
+		        this.owner.sendNewScore(this.owner.score)
+		        println("Jedzenie " + f.mass)
+		        f.onRemove()
 		      
 		      case v: Virus => virusCollision(v)
 		      
@@ -230,7 +231,7 @@ extends MovableEntity(EntityType.CELL, ePosition, worldGrid, worldActor) {
 		        //println(this.id + " id celi do zjedzenia: ", c.id);
 		        //eatenCells += c.id
 		        //owner.worldGrid.remove(c)
-		        if (this.owner.userID == c.owner.userID) {// && !owner.eatenOwnCells.contains(c)) {
+		        if (this.owner.playerID == c.owner.playerID) {// && !owner.eatenOwnCells.contains(c)) {
 		          this.addMass(c.mass)
 		          this.owner.eatenOwnCells += c
 		          owner.log.info(this.id + " id celi do samozjedzenia: " + c.id);
@@ -300,6 +301,7 @@ extends MovableEntity(EntityType.CELL, ePosition, worldGrid, worldActor) {
       var maxSplits: Int = (Math.floor((this.mass)/16.0) - 1).toInt; // Maximum amount of splits
       var numSplits: Int = settings.playerMaxCells - owner.cells.size; // Get number of splits
       numSplits = Math.min(numSplits,maxSplits);
+      if (numSplits < 0) numSplits = 0
       var splitMass = Math.min(this.mass/(numSplits + 1), 36); // Maximum size of new splits
 
       // Cell consumes mass before splitting

@@ -10,17 +10,18 @@ import scala.collection.mutable.ListBuffer
 import model.Util.util.settings
 
 object PlayerActor {
-  def props(out: ActorRef, server: ActorRef) = Props(new PlayerActor(out, server))
+  def props(out: ActorRef, server: ActorRef, userID: Option[String], nick: String) = Props(new PlayerActor(out, server, userID, nick))
 }
 
-class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with PlayerPacketHandler with ActorLogging  { 
+class PlayerActor(val out: ActorRef, var server: ActorRef, var userID: Option[String], var nick: String) extends Actor with PlayerPacketHandler with ActorLogging  {
   //implicit val userFormat = Json.format[PlayerData]
-  var name: String = ""
+  var name: String = nick
   var roomActor: ActorRef = null;
   var score: Int = 0
+  var totalMass: Int = 0
   var isInTheTop = false
   var worldActor: ActorRef = null
-  var userID = Int.MinValue
+  var playerID = Int.MinValue
   var cells = HashSet.empty[Cell]
   var visibleEntities = HashSet.empty[Entity]
   //var worldGrid: WorldGrid = WorldGrid()
@@ -37,10 +38,21 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
   var viewTop: Double = 0
   var viewBottom: Double = 0
   var eatenOwnCells = HashSet.empty[Cell]
-  
-  //override def preStart() = {
-  //  server ! Join
-  //}
+
+  override def postStop() = {
+    if (!cells.isEmpty) {
+      for (cell <- cells)
+        cell.onRemove()
+    }
+    
+    roomActor ! Leave(userID)
+    roomActor ! RemoveFromLeaderBoard(playerID)
+    
+    if (score > 0) {
+      userID map { uID => roomActor ! SaveMyScore(score, uID)}
+      score = 0;
+    }
+  }
   
   def getVisibleEntities(): List[Entity] = {
     visibleEntities.toList
@@ -49,7 +61,7 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
   def playerReceive: Receive = {
     case SpawnData(uID: Int, initialPosition: Position, _roomActor: ActorRef, world: WorldGrid, _worldActor: ActorRef) => 
       println("Przyszlo spawn data");
-      userID = uID
+      playerID = uID
       roomActor = _roomActor
       //worldGrid.grid = world.grid
       worldGrid = world
@@ -60,7 +72,8 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
       println("Po update view");
       //out ! Json.obj("type" -> "spawn", "id" -> newCell.id, "x" -> newCell.position.x, "y" -> newCell.position.y, 
       //    "size" -> newCell.getPhysicalSize(), "red" -> newCell.color.getRed, "green" -> newCell.color.getGreen, "blue" -> newCell.color.getBlue)
-      sendNewCellId(newCell.id)
+      sendMyFristCellID(newCell.id)
+      sendNewScore(score)
       connected = true
       println("Spawn player zakonczone");
     
@@ -119,11 +132,34 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
      }
     }
     
+    case RestartGame(startPosition: Position) => 
+      score= 0
+      totalMass = 0
+      isInTheTop = false
+      cells = HashSet.empty[Cell]
+      rangeX = 0
+      rangeY = 0
+      centerX = 0
+      centerY = 0
+      viewLeft = 0
+      viewRight = 0
+      viewTop  = 0
+      viewBottom = 0
+      eatenOwnCells = HashSet.empty[Cell]
+      val newCell = Cell(this, startPosition, worldGrid, worldActor)
+      cells += newCell
+      sendMyFristCellID(newCell.id)
+      sendNewScore(score)
+      updateView()
+      
+    
     case NewLeaderBoard(leaderBoard: List[LeaderBoardEntry]) => {
-     // if (leaderBoard.length < 10 || leaderBoard.last.score < this.getScore(true)) {
-        sender ! new LeaderBoardEntry(this.userID, this.name, this.getScore(true))
+      if (leaderBoard.length <= 10 || leaderBoard.last.totalMass <= this.getTotalMass(true)) {
+        if (!cells.isEmpty)
+          sender ! new LeaderBoardEntry(this.playerID, this.name, this.getTotalMass(true))
      //   isInTheTop = true
-     // } else isInTheTop = false
+      } 
+      //else isInTheTop = false
       println(leaderBoard)
       this.sendLeaderBoard(leaderBoard: List[LeaderBoardEntry])      
     }
@@ -136,6 +172,8 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
             log.info("ADD MASS W CELLI")
             c.addMass(mass)
             c.updatePositionInGrid()
+            score += mass
+            sendNewScore(score)
             log.info("Masa po dodaniu: " + c.mass);         
           } else {
             log.info("PRZYSZLO ADD MASS NIEOBSLUZONE ---------------------------")
@@ -148,12 +186,12 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
     }
       
     case EatCell(c: Cell, eatingEntity: Entity) => {
-       log.info ("UserID :" + this.userID + " przyszlo eat cell " + "Cella do zjedzenia: id: " + c.id + " Cela jedzaca: " + eatingEntity.id);
+       log.info ("playerID :" + this.playerID + " przyszlo eat cell " + "Cella do zjedzenia: id: " + c.id + " Cela jedzaca: " + eatingEntity.id);
     	  //c.onRemove()
-  /*      println(this.userID + " Id celli w msg: " + c.id);
-        println(this.userID + " Id cell ktora dostala eatCell");
+  /*      println(this.playerID + " Id celli w msg: " + c.id);
+        println(this.playerID + " Id cell ktora dostala eatCell");
         for (ce <- cells)
-          println(this.userID + " c.id :", ce.id);
+          println(this.playerID + " c.id :", ce.id);
  /*   	  for (myCell <- cells)
     	    breakable {
     	      if (myCell.id == c.id)
@@ -166,7 +204,7 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
           breakable {
             eatingEntity match {
               case eatingCell: Cell =>  
-                if ((eatingCell.owner.userID == this.userID) && (!cells.contains(eatingCell))) {
+                if ((eatingCell.owner.playerID == this.playerID) && (!cells.contains(eatingCell))) {
                   println(eatingCell)
                   println("BREAK");
                   break
@@ -193,8 +231,13 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
     	  for (ce <- cells)
           log.info("c.id :" + ce.id);
     	
-    	//if (cells.isEmpty)
-    	//  self ! akka.actor.PoisonPill
+    	if (cells.isEmpty) {
+    	    showEndMenu(score)
+    	    if (score > 0) {
+    	      userID map { uID => roomActor ! SaveMyScore(score, uID)}
+    	      score = 0;
+    	    }
+    	}
     } 
          
     case _ => {
@@ -205,14 +248,14 @@ class PlayerActor(val out: ActorRef, var server: ActorRef) extends Actor with Pl
   def receive = playerPacketHandler orElse playerReceive 
   override type Receive = PartialFunction[Any, Unit]
   
-  def getScore(reCalcScore: Boolean) = {
-    if (reCalcScore) {
+  def getTotalMass(reCalcMass: Boolean) = {
+    if (reCalcMass) {
       var s = 0;
       for (myCell <- this.cells) 
         s += myCell.mass;
-      this.score = s;
+      this.totalMass = s;
     }
-    this.score;
+    this.totalMass;
   };
   
   def splitCells() = {

@@ -5,7 +5,7 @@
     <head>
 
         <meta charset="utf-8">
-        <title>Fullscreen Login</title>
+        <title>Dotti club</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
@@ -40,9 +40,11 @@
 		$("#submitButton").on("click", function (event) {
 			event.stopPropagation();
 			var playerName = $('#nickname').val()
-			sessionStorage.name = playerName
+			//sessionStorage.name = playerName;
 			//$.post("game.html",0);
-			window.open("/game/0","_self")
+			window.open("/game/0/" + playerName,"_self");
+
+
 			//$.get("/game/0");
 			//$.ajax({
 			//	url: "game.html",
@@ -57,7 +59,7 @@
 		
 		$("#RoomsButton").on("click", function (event) {
 			var playerName = $('#nickname').val()
-			sessionStorage.name = playerName
+			//sessionStorage.name = playerName
 			window.open("/roomsMap","_self")
 		});
 	});

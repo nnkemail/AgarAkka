@@ -15,16 +15,16 @@ import model.Util.util.settings
 import scala.collection.mutable.HashMap
 
 class ServerActor() extends Actor {
-  val system = ActorSystem("mySystem")
+  val masterServerActor = context.actorSelection("/user/MasterServerActor")
   var rooms = HashMap.empty[Int, ActorRef]
   
   def receive = {
-    case JoinRoom(roomID: Int) => 
-      println("przyszlo join Room");
+    case JoinRoom(roomID: Int, userID: Option[String]) =>
+      println("przyszlo join Room")
       val roomActorOption = rooms.get(roomID)
       
       roomActorOption match {
-        case Some(roomActor) => roomActor forward Join
+        case Some(roomActor) => roomActor forward Join(userID)
         case None =>;  //TODO
       }  
           
@@ -34,6 +34,15 @@ class ServerActor() extends Actor {
         sender ! AddNewServerRoomResponse(Some(roomID))
       } else 
         sender ! AddNewServerRoomResponse(None)
+
+    case UserJoinedGame(userID, roomID) =>
+      masterServerActor ! UserJoinedGame(userID, roomID)
+      
+    case UserLeftGame(userID) =>
+      masterServerActor ! UserLeftGame(userID)
+      
+    case SaveMyScore(score, uID) =>
+      masterServerActor ! SaveMyScore(score, uID)
   }
 }
 

@@ -42,6 +42,14 @@
             pre.innerHTML = message + " " + new Date();
             status.appendChild(pre);
         }
+        
+        function getMyFacebook() {
+            FB.api('/me', { access_token: "@(accessTokenOfUser)" }, function(response) {
+            	//console.log("myFacebook: " + response.id)
+            	var result_holder = document.getElementById('myFacebook');
+            	result_holder.innerHTML += '<img  style="vertical-align:middle;margin:10px; color:#000; margin-right:10px;border-radius: 25px" src="https://graph.facebook.com/' + response.id + '/picture">' + response.name;
+            });
+        }
 
         $(document).ready(function() {
             var adress = jsRoutes.controllers.ApplicationController.socketLoggedChatMap().webSocketURL()
@@ -51,7 +59,7 @@
             
             var resultFriends = '';
             var index = 0;
-            
+            	       
             @for(friend <- gameFriends) {
                 var avatar = "@(friend.avatar)"
                 var name = "@(friend.name)"
@@ -101,7 +109,8 @@
                 if (roomsMap.choosenMarker !== null && roomsMap.choosenMarker.marker.getAnimation() !== null) {
                     var idRoom = roomsMap.choosenMarker.marker.idRoom;
                     //roomsMap.onDisconnect();
-                    window.setTimeout(window.open("/game/" + idRoom, "_self"), 1000);
+                    var playerName = $('#loggedNickname').val()
+                    window.setTimeout(window.open("/game/" + idRoom +"/" + playerName, "_self"), 1000);
                 } else {
                     document.getElementById("RoomDescription").innerHTML = "First choose a room";
                 }
@@ -164,6 +173,10 @@
                 xfbml      : true,
                 version    : 'v2.5'
             });
+            
+            FB.getLoginStatus(function(response){
+            	//getMyFacebook(); 
+            });
         };
 
         (function(d, s, id){
@@ -188,10 +201,13 @@
             });
         });
     </script>
+    <div>
+    <div id="myFacebook" style="font-family:PT Sans, Helvetica, Arial, sans-serif;position:absolute;color:black"></div>
+    
 	<!-- Logout Button -->
-	<button type="submit" id="LogoutButton">Logout</button>
+	<button type="submit" id="LogoutButton" onclick="location.href='@routes.ApplicationController.logOut';">Logout</button>
 	<!-- End Logout Button -->
-	
+	</div>
 	<!-- Map and Game friends -->
 	<div class="background">
 	<div class="wrapper">
@@ -233,10 +249,10 @@
 
     <button type="submit" id="NewRoomButton">New room</button>
     <input id="newRoomTitle" class="form-control" placeholder="Name your room"  maxlength="30" value=""/>
-    <input id="newRoomDescription" class="form-control" placeholder="Description (if you want to)"  maxlength="30" value=""/>
     <button type="submit" id="ConfirmNewRoom">Confirm new room</button>
-	<div class="button-section2">
     <button type="submit" id="DeleteRoomButton">Delete new room</button>
+	<div class="button-section2">
+    <input id="loggedNickname" class="form-control" placeholder="Nickname" onclick="this.value = ''" maxlength="30">
     <button type="submit" id="PlayRoomButton">Play</button>
 	</div>
     </div>

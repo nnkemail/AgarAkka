@@ -46,12 +46,18 @@ LoggedRooms.prototype = {
             var lng = data.lng;
             var position = new google.maps.LatLng(lat, lng);
             this.addMarker(id, position, title);
+        } 
+        else if (data.type === "LoggedUserInfo") {
+        	var result_holder = document.getElementById('myFacebook');
+        	result_holder.innerHTML += '<img  style="vertical-align:middle;margin:10px; color:#000; margin-right:10px;border-radius: 25px" src=' + data.avatar + '>' + data.name + " TOTAL SCORE: " + data.score;
         }
         else if (data.type === "NewFriend") {
             var avatar = data.friend.avatar;
             var name = data.friend.name;
             var friendID = data.friend.friendID;
+            var roomID = data.friend.roomID;
             this.addFriendToPage(friendID, name, avatar);
+            this.changeFriendStatus(friendID, roomID);
         }
         else if (data.type === "FriendChangedRoom") {
             console.log("Przyszlo friendchangeroom")
@@ -124,8 +130,10 @@ LoggedRooms.prototype = {
             icon: "http://maps.google.com/mapfiles/ms/micons/red.png"
         });
         marker.idRoom = id;
+        
+        this.markers[id] = marker;
 
-        var contentString = '<p style="color:black;margin:0;padding:0">' + String(marker.idRoom) + '</p>';
+        var contentString = '<p style="color:black;margin:0;padding:0">' + String(marker.title) + '</p>';
         marker.infowindow = new google.maps.InfoWindow({
             content: contentString
         });
@@ -178,17 +186,31 @@ LoggedRooms.prototype = {
         this.sendWebSocket({type: "AddFacebookFriend", userFacebookID: userFacebookID, friendFacebookID: friendID});
     },
 
-    addFriendToPage(friendID, name, avatar) {
+    addFriendToPage: function (friendID, name, avatar) {
         var resultFriend = '<div id = ' + friendID + ' style="margin:10px; color:#000;font-family:PT Sans, Helvetica, Arial, sans-serif"><img style="margin-right:10px;border-radius: 25px;vertical-align:middle" src=' + avatar + '>' + name + '<img style="float:right; margin-top:10px;" class = "statusImg"/></div><hr>';
         var result_holder_GameFriends = document.getElementById('gameFriends');
         result_holder_GameFriends.innerHTML += resultFriend;
     },
-
+    
+    showFriendRoomOnMap: function(roomID) {
+    	if (this.markers.hasOwnProperty(roomID)) {
+    		this.clickMarkerFunction(this.markers[roomID]);} 	
+    },
+    
     changeFriendStatus: function (friendID, roomID) {
+    	var t = this;
+    	elem = $("#gameFriends #" + friendID + " .statusImg")
         if (roomID === '0') {
             $("#gameFriends #" + friendID + " .statusImg").attr("src", "assets/img/status/google_map.png");
-        } else {
+            elem.off('click');
+        } else if (roomID == '' || roomID == "") {
             $("#gameFriends #" + friendID + " .statusImg").attr("src", "assets/img/status/open_door.jpg");
+            elem.off('click');
+        } else {
+        	$("#gameFriends #" + friendID + " .statusImg").attr("src", "assets/img/status/game.png");
+        	elem.click(function() {
+        		t.showFriendRoomOnMap.call(t, roomID);
+        	});  
         }
 
         //alert($("#gameFriends #" + friendID + " .statusImg").attr('src'));
