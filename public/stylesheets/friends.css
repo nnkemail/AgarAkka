@@ -149,8 +149,7 @@ hr {
 
 .getFriendsPanel {
 	position:absolute !important;
-	right:1px;
-	bottom:-80px;
+	left:950px;
 	height:65px;
 	width:285px;
 	font-size: 16px;
@@ -164,10 +163,13 @@ hr {
 	opacity:0.7;
 }
 
+.ButtonSectionWrapper {
+	position:absolute;
+}
 
 #map { 
-	margin-top:50px;
-    height:400px;
+	margin-top:60px;
+    height:390px;
 	width: 900px;
 	-moz-border-radius: 6px;
     -webkit-border-radius: 6px;
@@ -207,7 +209,7 @@ body {
 }
 
 .button-section2 {
-	margin-left:242px;
+	margin-left:205px;
 }
 
 .roomDescription {
@@ -233,15 +235,25 @@ body {
 #LogoutButton {
 	position:absolute;
 	margin:0px;
-	right:400px;
+	right:337px;
 	z-index:20;
-	margin-top:10px;
 	background:#ff4444;
 	border-color:#cb2f2f;
 }
 
 #LogoutButton:hover {
 	background:#ff6969;
+}
+
+#myFacebook {
+	font-family:PT Sans, Helvetica, Arial, sans-serif;
+	position:absolute;
+	color:black;
+}
+
+#myFacebook img{
+	margin-top:0px !important;
+	margin-left:0px !important;
 }
 
 h1 {

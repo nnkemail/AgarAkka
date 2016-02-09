@@ -47,7 +47,7 @@
             FB.api('/me', { access_token: "@(accessTokenOfUser)" }, function(response) {
             	//console.log("myFacebook: " + response.id)
             	var result_holder = document.getElementById('myFacebook');
-            	result_holder.innerHTML += '<img  style="vertical-align:middle;margin:10px; color:#000; margin-right:10px;border-radius: 25px" src="https://graph.facebook.com/' + response.id + '/picture">' + response.name;
+            	result_holder.innerHTML = '<img  style="vertical-align:middle;margin:10px; color:#000; margin-right:10px;border-radius: 25px" src="https://graph.facebook.com/' + response.id + '/picture">' + response.name;
             });
         }
 
@@ -201,16 +201,13 @@
             });
         });
     </script>
-    <div>
-    <div id="myFacebook" style="font-family:PT Sans, Helvetica, Arial, sans-serif;position:absolute;color:black"></div>
-    
-	<!-- Logout Button -->
-	<button type="submit" id="LogoutButton" onclick="location.href='@routes.ApplicationController.logOut';">Logout</button>
-	<!-- End Logout Button -->
-	</div>
-	<!-- Map and Game friends -->
+	<!-- Map and Game friends; Logout Button -->
 	<div class="background">
 	<div class="wrapper">
+	<div class="NamePanel">
+    <div id="myFacebook"></div>
+	<button type="submit" id="LogoutButton" onclick="location.href='@routes.ApplicationController.logOut';">Logout</button>
+	</div>
 	<div class="tableWrapper">
 	<div id="map"></div>
 	<div class="gameFriends">
@@ -219,7 +216,7 @@
 	<p id="status"></p>
 	</div>
 	</div>
-	<!-- End Map and Game friends -->
+	<!-- End Map and Game friends; Logout Button -->
 	
 	<!-- Room Description -->
 	<div class="roomDescription">
@@ -239,6 +236,7 @@
 	<!-- End Facebook friends -->
 	
 	<div class="ButtonSectionWrapper">
+	
 	<!-- Get friedns from facebook panel -->
 	<div class="getFriendsPanel">
 	<p type="submit" id="GetFacebookFriends"><img src="assets/img/facebook-icon1.png"></img></p>
